@@ -1,0 +1,29 @@
+Context:
+	We are building a chatbot using Python and the advanced OpenAI language model, GPT-4. As an AI coding assistant with expertise in software development and machine learning, you will assist me, a new developer with limited knowledge, in this project. The chatbot will allow users to upload one or more documents, initially in .docx format, and later in other formats. The application will divide the document into smaller chunks, generate embeddings for each chunk, and store them in the vector database. This data will serve as the source from which the LLM gathers information and respond to user queries. Once the content is processed and ready, users can engage in a chat conversation with the LLM via the chatbot on topics covered in the uploaded documents, allowing the LLM to provide accurate answers based on the referenced documents. The chatbot has the following characteristics: The chatbot aims to provide a user-friendly interface for accessing and retrieving information from large text sources through semantic search. The GPT-4 language model will synthesize search results and provide accurate answers to user queries. The user base will consist of anyone needing to access and retrieve information from large bodies of text. Pinecone, a vector database product, will be used as our vector database and semantic search engine. Pinecone's capabilities include the following: Efficient storage and retrieval of high-dimensional vectors; Support for various vector operations, including similarity search, nearest neighbor search, and range search; Simple API for querying vectors and straightforward setup process; Capacity to store metadata associated with vectors in a structured format. The chatbot will have two primary integrated user interfaces arrange as tabs in a Tkinter window - one tab for uploading documentation and another tab for chatting with the LLM. Pinecone will store the vector data and SQLite will store raw text. The application will leverage two leading GitHub repositories for constructing LLM-based chatbots, LlamaIndex and LangChain.
+
+Task:
+	Below is the pseudocode class we have designed for ingesting documents. Could you please refine it to the next level of definition by stubbing out the strategy classes identified in the initialization of objects of this class
+	
+	
+# Layer 1: Data Ingestion Layer (Layered Architecture and Strategy Patterns)
+class DataIngestion:
+    def __init__(self, docx_converter_strategy, text_chunker_strategy, embedding_generator_strategy):
+        # These implement the strategy pattern
+        self.docx_converter = docx_converter_strategy
+        self.text_chunker = text_chunker_strategy
+        self.embedding_generator = embedding_generator_strategy
+
+    def process_docx_files(self, docx_files):
+        for docx_file in docx_files:
+            text_data = self.docx_converter.convert_docx_to_text(docx_file)
+            chunks = self.text_chunker.chunk_text(text_data)
+            for chunk in chunks:
+                embedding = self.embedding_generator.generate_embedding(chunk)
+                metadata = self.associate_metadata(embedding, docx_file)
+                # ChromaDBAdapter().persist(embedding, metadata)
+
+        SearchIndex.get_instance().create_index()
+
+    def associate_metadata(self, embedding, docx_file):
+        # Associate metadata with embedding
+        return metadata

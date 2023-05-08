@@ -1,0 +1,38 @@
+Please write a python script that will exercise the capabilities of this class. The script should open a file browser and allow the user to select a .docx file, parse the file and write the text of the file to a new file in the same directory with "-txt" appended to its file name, then it should parse the file into nodes, then write the nodes to another file in the same directory with "-nodes" appended to its file name.
+
+from abc import ABC, abstractmethod
+from pathlib import Path
+from llama_index import download_loader, SimpleNodeParser
+
+# Base Strategy Classes
+class EmbeddingGeneratorStrategy(ABC):
+    @abstractmethod
+    def generate_embedding(self, node):
+        pass
+
+# Specific Strategy Implementations (examples)
+class EmbeddingGeneratorExample(EmbeddingGeneratorStrategy):
+    def generate_embedding(self, node):
+        # Implementation for generating embeddings
+        pass
+
+# Data Ingestion Class
+class DataIngestion:
+    def __init__(self, embedding_generator_strategy):
+        self.embedding_generator = embedding_generator_strategy
+
+    def process_docx_files(self, docx_files):
+        DocxReader = download_loader("DocxReader")
+        loader = DocxReader()
+        node_parser = SimpleNodeParser()
+
+        for docx_file in docx_files:
+            documents = loader.load_data(file=Path(docx_file))
+            nodes = node_parser.get_nodes_from_documents(documents)
+
+            for node in nodes:
+                embedding = self.embedding_generator.generate_embedding(node)
+                metadata = node.extra_info  # Access metadata from the Node object
+                # ChromaDBAdapter().persist(embedding, metadata)
+
+        # SearchIndex.get_instance().create_index()

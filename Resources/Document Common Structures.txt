@@ -1,0 +1,85 @@
+
+References to external related texts
+	Bibliographies
+	recommended reading
+	additional resources
+    Citations
+	Reference lists
+
+Metadata about the text
+	Table of contents
+	List of Figures
+	List of Tables
+	Indexes
+
+Structural elements within the text:
+
+    Chapters
+    Sections
+    Subsections
+    Headings
+    Subheadings
+    Paragraphs
+    Lists of numbered items (e.g. list of steps, list of requirements, list of recommendations)
+	Bulleted Lists
+	Tables
+
+Reference elements:
+
+    Endnotes
+    Footnotes
+    Cross-references
+	Annotations or explanations that clarify or expand on specific sections of the text
+
+Supplementary elements:
+
+    Appendices that include tables, graphs, charts, or other visual aids
+    Supplemental data or information that supports the main content of the document
+	Glossaries
+
+
+Summary elements:
+
+    Abstracts
+    Summaries of specific sections or chapters
+    Highlights of the main points or arguments
+	Executive Summary
+	Conclusion
+
+Front matter elements:
+
+    Table of Authorities for legal documents
+    Forward-Looking Statements for financial documents
+    Disclaimer for certain types of documents (e.g. medical, legal, financial)
+    Cover page or title page
+    Copyright information
+	Acknowledgements
+	Dedication
+	Forward
+	Preface
+	Introduction
+
+Research elements:
+
+    Literature review
+    Methodology used for analyzing data
+	Methodology: A section that describes the research methods and techniques used in the creation of the document.
+    Case studies or examples used to support findings
+    Results: A section that presents the findings of the research or analysis conducted for the document. Can be broken down by subsection or section
+    Comparison of results with prior studies or benchmarks
+    Graphs, charts, or other visual aids that demonstrate research findings
+	Recommendations: A section that provides suggestions for action or further research based on the findings of the document.
+	Limitations: A section that acknowledges the potential shortcomings or limitations of the research or analysis presented in the document.
+	Findings: A section that summarizes the main points and findings of the document.
+
+Abbreviation elements:
+
+    Acronymns and Abbreviations
+	Symbols used in the document and their meanings
+    Standard abbreviations used in a specific field or industry
+    Glossary of terms specific to a certain field or industry (if it includes abbreviations)
+    List of abbreviations used in tables, charts, or other visual aids
+
+	
+
+
