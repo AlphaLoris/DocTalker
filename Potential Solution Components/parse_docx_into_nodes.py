@@ -4,10 +4,10 @@ import sys
 import os
 import tkinter as tk
 from tkinter import filedialog
-from src.document_parser import DocumentParser
+from src.docx_document_parser import DocxDocumentParser
 from src.embeddings import create_keyword_objects_from_txt, write_keywords_objects_to_file, read_keyword_objects_from_file, \
     generate_embedding
-from src.node import read_document_nodes_from_file, write_document_nodes_to_file
+from src.node_old import read_document_nodes_from_file, write_document_nodes_to_file
 import numpy as np
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)
@@ -43,8 +43,8 @@ if __name__ == '__main__':
                 print("Select a document to parse...")
                 word_file_path = select_file()
                 if word_file_path:
-                    # Create a DocumentParser object and process the document to create a dictionary of nodes
-                    document_parser = DocumentParser(word_file_path)
+                    # Create a DocxDocumentParser object and process the document to create a dictionary of nodes
+                    document_parser = DocxDocumentParser(word_file_path)
                     print(f"Document title: {document_parser.document_title}")
 
                     # Create a dictionary of nodes based on the text contents of the document

@@ -39,7 +39,7 @@ class QdrantDBAdapter:
         return QdrantDBAdapter._instance
 
     def persist(self, embedding, metadata):
-        # Persist embedding and metadata in ChromaDB
+        # Persist embedding and metadata in QdrantDB
         pass
 
 

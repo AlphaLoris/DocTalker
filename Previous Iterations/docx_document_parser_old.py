@@ -1,11 +1,11 @@
-# document_parser.py module
+# docx_document_parser.py module
 import zipfile
 from lxml import etree
 from docx import Document
 from node import NodeFactory
 
 
-class DocumentParser:
+class DocxDocumentParser:
     def __init__(self, file_path):
         self.file_path = file_path
         self.document_xml_bytes = None
@@ -21,7 +21,7 @@ class DocumentParser:
             self.document_xml_bytes = docx_zip.read('word/document.xml')
 
         # Get the document title
-        self.document_title = DocumentParser.get_docx_title(self.file_path)
+        self.document_title = DocxDocumentParser.get_docx_title(self.file_path)
 
     def process_document(self):
         self.doc_root = self.parse()

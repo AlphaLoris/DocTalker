@@ -54,10 +54,6 @@ def read_document_nodes_from_file(input_file_path: str) -> dict:
         title = document_node_info_dict["title"]
         headings = document_node_info_dict["headings"]
         body_text = document_node_info_dict["body_text"]
-        page_numbers = []
-        for x in document_node_info_dict["page_numbers"].strip('[]').split(', '):
-            if x:
-                page_numbers.append(int(x))
         prev_node = document_node_info_dict["prev_node"]
         next_node = document_node_info_dict["next_node"]
         tokens_count = int(document_node_info_dict["tokens_count"])
@@ -65,7 +61,7 @@ def read_document_nodes_from_file(input_file_path: str) -> dict:
         token_usage = int(document_node_info_dict["token_usage"])
         embedding = np.fromstring(document_node_info_dict["embedding"].strip("[]"), sep=' ')
 
-        document_node = DocumentNode(title, headings, body_text, page_numbers)
+        document_node = DocumentNode(title, headings, body_text)
         document_node.id = document_node_id
         document_node.prev_node = prev_node
         document_node.next_node = next_node
@@ -104,12 +100,11 @@ def read_document_nodes_from_file(input_file_path: str) -> dict:
 
 
 class DocumentNode:
-    def __init__(self, title, headings, body_text, page_numbers, prev_node=None, next_node=None):
+    def __init__(self, title, headings, body_text, prev_node=None, next_node=None):
         self.id = generate_unique_id()
         self.title = title
         self.headings = headings
         self.body_text = body_text
-        self.page_numbers = page_numbers
         self.prev_node = prev_node
         self.next_node = next_node
         self.sentence_list = self.create_sentence_list()
@@ -138,7 +133,6 @@ class DocumentNode:
         result += "title:\n" + self.title + "\n\n"
         result += "headings:\n" + self.headings + "\n\n"
         result += "body_text:\n" + self.body_text + "\n\n"
-        result += "page_numbers:\n" + ', '.join(map(str, self.page_numbers)) + "\n\n"
         result += "tokens_count:\n" + str(self.tokens_count) + "\n\n"
         result += "embedding_model:\n" + self.embedding_model + "\n\n"
         result += "token_usage\n" + str(self.token_usage) + "\n\n"
@@ -176,7 +170,7 @@ class Sentence:
 
 class NodeFactory:
     @classmethod
-    def create_node(cls, title, headings, body_text, page_numbers, prev_node=None, next_node=None):
+    def create_node(cls, title, headings, body_text, prev_node=None, next_node=None):
         return DocumentNode(title, headings, body_text, prev_node, next_node)
 
 
