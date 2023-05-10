@@ -1,4 +1,5 @@
 # docx_document_parser.py module
+
 import zipfile
 from lxml import etree
 from docx import Document

@@ -1,10 +1,9 @@
+# faiss_index.py module
+
 import faiss
 import numpy as np
 
 # embedding = np.zeros((1, 1536))
-
-import faiss
-import numpy as np
 
 
 class FaissIndex:
@@ -37,4 +36,3 @@ class FaissIndex:
 
     def get_index(self):
         return self.index
-

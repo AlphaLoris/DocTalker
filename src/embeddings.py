@@ -1,11 +1,14 @@
-# TODO: Develop ways to understand the embeddings
-# TODO: Remove the OpenAI API key from the code
+# embeddings.py module
+
 import os
 import re
 import numpy as np
 from src.node import generate_unique_id, num_tokens_from_messages
 import openai
 from tenacity import retry, wait_random_exponential, stop_after_attempt
+
+# TODO: Develop ways to understand the embeddings
+
 
 # Set your OpenAI API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
