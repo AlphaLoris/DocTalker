@@ -4,6 +4,7 @@ import zipfile
 from lxml import etree
 from docx import Document
 from node import NodeFactory
+import re
 
 
 class DocxDocumentParser:
@@ -169,10 +170,9 @@ class DocxDocumentParser:
             if pb_index > 0:
                 prev_sibling = pb_parent[pb_index - 1]
                 if prev_sibling.tag.endswith("instrText") and "PAGE" in prev_sibling.text:
-                    page_number = prev_sibling.text.split(" ")[-1]
-                    try:
-                        page_number = int(page_number)
+                    page_number_match = re.search(r'\d+', prev_sibling.text)
+                    if page_number_match:
+                        page_number = int(page_number_match.group())
                         page_numbers.append(page_number)
-                    except ValueError:
-                        pass
         return page_numbers
+

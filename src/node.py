@@ -138,7 +138,10 @@ class DocumentNode:
         result += "title:\n" + self.title + "\n\n"
         result += "headings:\n" + self.headings + "\n\n"
         result += "body_text:\n" + self.body_text + "\n\n"
-        result += "page_numbers:\n" + ', '.join(map(str, self.page_numbers)) + "\n\n"
+        if self.page_numbers is not None:
+            result += "page_numbers:\n" + ', '.join(map(str, self.page_numbers)) + "\n\n"
+        else:
+            result += "page_numbers: None\n\n"
         result += "tokens_count:\n" + str(self.tokens_count) + "\n\n"
         result += "embedding_model:\n" + self.embedding_model + "\n\n"
         result += "token_usage\n" + str(self.token_usage) + "\n\n"

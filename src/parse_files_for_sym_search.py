@@ -1,9 +1,22 @@
+# parse_files_for_sym_search.py module
+
 import sys
 import os
 import tkinter as tk
 from tkinter import filedialog
 from document_manager import DocumentManager
 import numpy as np
+from semantic_search_test import semantic_search_test
+
+# TODO: Optimizations
+# TODO: Add a progress bar for document upload and parsing/embedding
+# TODO: Optimize text division
+# TODO: Optimize Index type
+# TODO: Optimize Similarity calculation type
+# TODO: Optimize number of results returned
+# TODO: Optimize method of assembling results into prompt
+# TODO: Optimize prompt composition/characteristics/technique
+# TODO: Optimize response validation
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)
 
@@ -57,6 +70,8 @@ if __name__ == '__main__':
                     print("Saving manager state to files...")
                     output_directory = os.path.dirname(nodes_file_path)
                     doc_manager.save_manager_state(output_directory)
+
+            semantic_search_test()
 
             # Print the document_nodes and keyword objects to console
             for node in doc_manager.document_nodes.values():

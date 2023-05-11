@@ -6,6 +6,7 @@ from embeddings import create_keyword_objects_from_txt, generate_embedding, writ
     read_keyword_objects_from_file
 from faiss_index import FaissIndex
 from node import write_document_nodes_to_file, read_document_nodes_from_file
+import numpy as np
 
 
 class DocumentManager:
@@ -13,6 +14,7 @@ class DocumentManager:
         self.document_nodes = {}
         self.keyword_objects = {}
         self.faiss_index = None
+        self.embedding_order = []  # Add this line
 
     def load_documents(self, file_paths: List[str]):
         for file_path in file_paths:
@@ -20,14 +22,17 @@ class DocumentManager:
             nodes = parser.process_document()
             for node_id, node in nodes.items():
                 generate_embedding(node)
+                self.embedding_order.append(('node', node_id))  # Add this line
                 for sentence in node.create_sentence_list():
                     generate_embedding(sentence)
+                    self.embedding_order.append(('sentence', sentence.id))  # Add this line
             self.document_nodes.update(nodes)
 
     def load_keywords(self, keyword_file_path: str):
         self.keyword_objects = create_keyword_objects_from_txt(keyword_file_path)
         for keyword in self.keyword_objects.values():
             generate_embedding(keyword)
+            self.embedding_order.append(('keyword', keyword.id))  # Add this line
 
     def build_faiss_index(self):
         embeddings = []
@@ -42,8 +47,8 @@ class DocumentManager:
         self.faiss_index.create_index()
 
     def search_similar_nodes(self, query_embedding: List[float], k: int) -> Tuple[List[int], List[float]]:
-        indices, distances = self.faiss_index.search(query_embedding, k)
-        return indices, distances
+        indices, distances = self.faiss_index.search(np.array([query_embedding]), k)
+        return indices[0].tolist(), distances[0].tolist()
 
     def save_manager_state(self, output_directory: str):
         write_document_nodes_to_file(self.document_nodes, f"{output_directory}/document_nodes.txt")
