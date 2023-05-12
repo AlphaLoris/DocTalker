@@ -2,6 +2,7 @@
 
 import os
 import re
+import json
 import numpy as np
 from src.node import generate_unique_id, num_tokens_from_messages
 import openai
@@ -40,6 +41,25 @@ class KeyWord:
         result += "\n"
         return result
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "word": self.word,
+            "tokens_count": self.tokens_count,
+            "embedding": self.embedding.tolist(),  # np.ndarray to list
+            "embedding_model": self.embedding_model,
+            "token_usage": self.token_usage
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        keyword = cls(data["id"], data["word"])
+        keyword.tokens_count = data["tokens_count"]
+        keyword.embedding = np.array(data["embedding"])  # list to np.ndarray
+        keyword.embedding_model = data["embedding_model"]
+        keyword.token_usage = data["token_usage"]
+        return keyword
+
 
 def create_keyword_objects_from_txt(keyword_file_path: str) -> dict:
     keywords_dict = {}
@@ -56,6 +76,30 @@ def create_keyword_objects_from_txt(keyword_file_path: str) -> dict:
     return keywords_dict
 
 
+def write_keywords_objects_to_file(keywords_dict: dict, output_file_path: str):
+    with open(output_file_path, 'w') as output_file:
+        json.dump(
+            {k: v.to_dict() for k, v in keywords_dict.items()},
+            output_file,
+            ensure_ascii=False,
+            indent=4
+        )
+
+
+def read_keyword_objects_from_file(input_file_path: str) -> dict:
+    keywords_dict = {}
+
+    with open(input_file_path, 'r') as input_file:
+        data = json.load(input_file)
+
+    for keyword_id, keyword_dict in data.items():
+        keyword = KeyWord.from_dict(keyword_dict)
+        keywords_dict[keyword_id] = keyword
+
+    return keywords_dict
+
+
+"""
 def write_keywords_objects_to_file(keywords_dict: dict, output_file_path: str):
     with open(output_file_path, 'w') as output_file:
         for keyword_obj in keywords_dict.values():
@@ -105,6 +149,7 @@ def read_keyword_objects_from_file(input_file_path: str) -> dict:
                 embedding = []
 
     return keywords_dict
+"""
 
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
@@ -117,11 +162,14 @@ def generate_embedding(obj) -> None:
     if hasattr(obj, "body_text"):
         # Object is a Node
         text = obj.headings + ": " + obj.body_text
+        print("Embedding node text: ", obj.body_text)
     elif hasattr(obj, "text"):
         # Object is a Sentence
         text = obj.text
+        print("Embedding sentence text: ", obj.text)
     elif hasattr(obj, "word"):
         # Object is a Keyword
+        print("Embedding keyword text: ", obj.word)
         text = obj.word
     else:
         print("Object causing error: ", obj.id)
@@ -143,6 +191,8 @@ def generate_embedding(obj) -> None:
     total_tokens = response["usage"]["total_tokens"]
 
     # Assign the values to the relevant attributes
+    print("Assigning embedding value to: ", obj.id)
     obj.embedding = np.array(embedding).reshape(1, -1)
     obj.embedding_model = model
     obj.token_usage = total_tokens
+    print("Embedding value assigned to: ", obj.id)

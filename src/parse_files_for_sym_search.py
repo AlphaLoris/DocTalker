@@ -41,8 +41,8 @@ if __name__ == '__main__':
             doc_manager = DocumentManager()
 
             # Files
-            nodes_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\Nodes.txt"
-            keyword_objects_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\KeyWordObjects.txt"
+            nodes_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\document_nodes.txt"
+            keyword_objects_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\keywords.txt"
             keyword_text_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\\Experiments\Experiments2\Key Words.txt"
 
             # Handle the nodes
@@ -55,23 +55,30 @@ if __name__ == '__main__':
                 word_file_path = select_file()
                 if word_file_path:
                     # Load documents
+                    print("Loading documents...")
                     doc_manager.load_documents([word_file_path])
+                    print("Number of document nodes:", len(doc_manager.document_nodes))
+                    print("Done loading documents.")
 
                     # Handle the keywords
                     if os.path.exists(keyword_text_file_path):
                         print("Loading keywords...")
                         doc_manager.load_keywords(keyword_text_file_path)
+                        print("Number of keyword objects:", len(doc_manager.keyword_objects))
+                        print("Done loading keywords.")
 
                     # Build Faiss index
                     print("Building Faiss index...")
                     doc_manager.build_faiss_index()
+                    print("Done building Faiss index.")
 
                     # Save manager state to files
                     print("Saving manager state to files...")
                     output_directory = os.path.dirname(nodes_file_path)
                     doc_manager.save_manager_state(output_directory)
+                    print("Done saving manager state to files.")
 
-            semantic_search_test()
+            semantic_search_test(doc_manager)
 
             # Print the document_nodes and keyword objects to console
             for node in doc_manager.document_nodes.values():

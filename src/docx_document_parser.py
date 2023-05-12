@@ -30,6 +30,7 @@ class DocxDocumentParser:
         self.remove_toc()
         self.condense_blank_lines()
         self.text_contents = self.extract_text_elements()
+
         # Print the text contents to console
         print("Document text:\n" + str(self.text_contents))
 
@@ -41,19 +42,21 @@ class DocxDocumentParser:
         for style, text_content, current_headings, page_numbers in self.text_contents:
             if style == "Title":
                 current_title = text_content
+                print("Getting title from document body: " + current_title)
             elif "Heading" in style:
                 pass  # We are now processing headings in the extract_text_elements function
             else:
                 # Check if the text_content is not empty after stripping whitespace characters
                 if text_content.strip():
+                    print("Using process_document to create node for: " + text_content)
                     node = NodeFactory.create_node(title=current_title, headings=r" \ ".join(current_headings),
-                                                   body_text=text_content, prev_node=prev_node_id,
-                                                   page_numbers=page_numbers)
+                                                   body_text=text_content, prev_node=prev_node_id)
                     if prev_node_id is not None:
                         self.document_nodes[prev_node_id].next_node = node.id
                     self.document_nodes[node.id] = node
                     prev_node_id = node.id
 
+        print("Returning document nodes")
         return self.document_nodes
 
     # Attempt to get the title of a .docx file from its metadata.
@@ -62,6 +65,7 @@ class DocxDocumentParser:
         doc = Document(doc_file_path)
         core_properties = doc.core_properties
 
+        print("Getting document title from metadata...")
         if core_properties.title:
             return core_properties.title
 
@@ -92,6 +96,7 @@ class DocxDocumentParser:
                 header_element = prev_element
 
             # Remove the TOC
+            print("Removing TOC")
             toc_sdt.getparent().remove(toc_sdt)
 
             # Remove the header element, if it exists
@@ -175,4 +180,3 @@ class DocxDocumentParser:
                         page_number = int(page_number_match.group())
                         page_numbers.append(page_number)
         return page_numbers
-

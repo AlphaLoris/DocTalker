@@ -4,7 +4,7 @@ from embeddings import get_embedding
 from document_manager import DocumentManager
 
 
-def semantic_search_test():
+def semantic_search_test(doc_manager):
     # Launch a Windows file browser and get the .txt file path
     root = tk.Tk()
     root.withdraw()
@@ -14,9 +14,9 @@ def semantic_search_test():
     with open(file_path, 'r', encoding='utf-8') as f:
         words = f.read().splitlines()
 
-    doc_manager = DocumentManager()  # Assuming DocumentManager instance is already initialized with data
+    # doc_manager = DocumentManager()  # Assuming DocumentManager instance is already initialized with data
 
-    output_path = file_path.replace(".txt", "_Words_and_Neighbors.txt")
+    output_path = file_path.replace(".txt", "_and_Neighbors.txt")
 
     # Iterate through the list of words
     with open(output_path, 'w', encoding='utf-8') as output_file:
@@ -31,13 +31,15 @@ def semantic_search_test():
             indices, distances = doc_manager.search_similar_nodes(embedding, k)
 
             # Write the word and neighbors to the output file
-            indices_list = indices[0]
-            distances_list = distances[0]
+            # indices_list = indices[0]
+            # distances_list = distances[0]
 
             # Write the word and neighbors to the output file
             output_file.write(f"Word: {word}\n")
             for i, (index, distance) in enumerate(zip(indices, distances)):
                 index = int(index)  # Convert index to integer
+                print("Indices:", indices)
+                print("Length of embedding_order:", len(doc_manager.embedding_order))
                 embedding_type, text_object_id = doc_manager.embedding_order[index]
 
                 if embedding_type == 'node':
@@ -61,4 +63,4 @@ def semantic_search_test():
 
 
 if __name__ == "__main__":
-    semantic_search_test()
+    semantic_search_test(doc_manager=DocumentManager())
