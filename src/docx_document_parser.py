@@ -1,5 +1,35 @@
 # docx_document_parser.py module
 
+"""
+docx_document_parser.py
+
+This module provides a DocxDocumentParser class for parsing and processing .docx files. The class extracts text
+elements, removes table of contents (TOC), condenses blank lines, and creates a dictionary of document nodes based on
+the text contents.
+
+Usage
+    1. Create an instance of the DocxDocumentParser class, providing the file path as input.
+    2. Use the process_document method to parse and process the document.
+    3. Access the extracted text contents and document nodes for further processing.
+
+Dependencies:
+    - zipfile
+    - etree from lxml
+    - Document from docx
+    - NodeFactory from node
+    - re
+
+Notes:
+    - The DocxDocumentParser class handles the parsing and processing of .docx files.
+    - The class extracts text elements, removes TOC, condenses blank lines, and creates document nodes.
+    - The document title is extracted from the metadata or the document body.
+    - The process_document method returns a dictionary of document nodes.
+    - The extract_text_elements method extracts text contents and handles headings.
+    - The remove_toc method removes the TOC element and the header element, if present.
+    - The condense_blank_lines method removes excessive blank lines and adjusts spacing.
+    - The extract_page_numbers method extracts page numbers from page breaks.
+"""
+
 import zipfile
 from lxml import etree
 from docx import Document
@@ -76,7 +106,7 @@ class DocxDocumentParser:
 
     def parse(self):
         self.doc_root = etree.fromstring(self.document_xml_bytes)
-        self.xml_tree = self.doc_root  # Add this line to set the xml_tree
+        self.xml_tree = self.doc_root
         return self.doc_root
 
     def remove_toc(self):

@@ -1,5 +1,33 @@
 # node.py module
 
+"""
+node.py
+
+This module provides utility functions and classes for working with document nodes and sentences. It includes functions
+for generating unique IDs, counting tokens, reading/writing document nodes from/to files, and classes for DocumentNode
+and Sentence.
+
+Functions:
+    - generate_unique_id: Generates a unique ID using UUID.
+    - num_tokens_from_messages: Returns the number of tokens used by a list of messages.
+    - write_document_nodes_to_file: Writes document nodes to a file in JSON format.
+    - read_document_nodes_from_file: Reads document nodes from a file in JSON format.
+
+Classes:
+    - DocumentNode: Represents a document node with title, headings, body text, page numbers, and related properties.
+    - Sentence: Represents a sentence within a document node with text, ID, and related properties.
+    - NodeFactory: Factory class for creating document nodes.
+    - SentenceFactory: Factory class for creating sentences.
+
+Notes:
+    - The DocumentNode and Sentence classes provide methods for string representation and conversion to/from
+        dictionaries.
+    - The write_document_nodes_to_file and read_document_nodes_from_file functions facilitate saving/loading document
+        nodes.
+    - The generate_unique_id function generates a unique ID using UUID.
+    - The num_tokens_from_messages function counts the number of tokens used by a list of messages.
+"""
+
 import uuid
 import re
 from typing import List
@@ -53,83 +81,6 @@ def read_document_nodes_from_file(input_file_path: str) -> dict:
     return document_nodes_dict
 
 
-"""
-def write_document_nodes_to_file(document_nodes_dict: dict, output_file_path: str):
-    with open(output_file_path, 'w') as output_file:
-        for document_node in document_nodes_dict.values():
-            output_file.write(document_node.to_string())
-            output_file.write("=====\n")
-
-
-def read_document_nodes_from_file(input_file_path: str) -> dict:
-    document_nodes_dict = {}
-
-    with open(input_file_path, 'r') as input_file:
-        document_node_lines = input_file.read().split("=====\n")
-
-    for document_node_block in document_node_lines[:-1]:  # Exclude the last empty block
-        document_node_info = document_node_block.split("\n\n")
-        try:
-            print(document_node_info)
-            document_node_info_dict = {info.split(":\n")[0]: info.split(":\n")[1] for info in document_node_info}
-        except IndexError:
-            print(f"Error: problem with line: {document_node_info} when reading document nodes from file")
-            raise
-
-        document_node_id = document_node_info_dict["id"]
-        title = document_node_info_dict["title"]
-        headings = document_node_info_dict["headings"]
-        body_text = document_node_info_dict["body_text"]
-        page_numbers = []
-        for x in document_node_info_dict["page_numbers"].strip('[]').split(', '):
-            if x:
-                page_numbers.append(int(x))
-        prev_node = document_node_info_dict["prev_node"]
-        next_node = document_node_info_dict["next_node"]
-        tokens_count = int(document_node_info_dict["tokens_count"])
-        embedding_model = document_node_info_dict["embedding_model"]
-        token_usage = int(document_node_info_dict["token_usage"])
-        embedding = np.fromstring(document_node_info_dict["embedding"].strip("[]"), sep=' ')
-
-        document_node = DocumentNode(title, headings, body_text, page_numbers)
-        document_node.id = document_node_id
-        document_node.prev_node = prev_node
-        document_node.next_node = next_node
-        document_node.tokens_count = tokens_count
-        document_node.embedding_model = embedding_model
-        document_node.token_usage = token_usage
-        document_node.embedding = embedding
-
-        sentence_list = []
-        sentence_lines = document_node_info_dict["sentence_list"].split("\n")
-        for sentence_block in sentence_lines:
-            sentence_info = sentence_block.split("\n\n")
-            sentence_info_dict = {info.split(":\n")[0]: info.split(":\n")[1] for info in sentence_info}
-
-            sentence_id = sentence_info_dict["id"]
-            text = sentence_info_dict["text"]
-            prev_sentence = sentence_info_dict["prev_sentence"]
-            next_sentence = sentence_info_dict["next_sentence"]
-            tokens_count = int(sentence_info_dict["tokens_count"])
-            embedding_model = sentence_info_dict["embedding_model"]
-            token_usage = int(sentence_info_dict["token_usage"])
-            embedding = np.fromstring(sentence_info_dict["embedding"].strip("[]"), sep=' ')
-
-            sentence = Sentence(sentence_id, text, prev_sentence, next_sentence)
-            sentence.tokens_count = tokens_count
-            sentence.embedding_model = embedding_model
-            sentence.token_usage = token_usage
-            sentence.embedding = embedding
-
-            sentence_list.append(sentence)
-
-        document_node.sentence_list = sentence_list
-        document_nodes_dict[document_node_id] = document_node
-
-    return document_nodes_dict
-"""
-
-
 class DocumentNode:
     def __init__(self, title, headings, body_text, page_numbers, prev_node=None, next_node=None):
         self.id = generate_unique_id()
@@ -145,6 +96,7 @@ class DocumentNode:
         self.embedding_model = ""
         self.token_usage = 0
 
+    """
     def create_sentence_list(self) -> List['Sentence']:
         sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?])\s', self.body_text)
         sentence_objects = []
@@ -156,6 +108,25 @@ class DocumentNode:
                 sentence_objects.append(sentence)
                 if i > 0:
                     sentence_objects[i - 1].next_sentence = sentence.id
+        return sentence_objects
+    """
+
+    def create_sentence_list(self) -> List['Sentence']:
+        sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?])\s', self.body_text)
+        sentence_objects = []
+        for i, sentence_text in enumerate(sentences):
+            # Check if the sentence_text is not empty after stripping whitespace characters
+            if sentence_text.strip():
+                prev_sentence = sentence_objects[-1].id if i > 0 else None
+                sentence = SentenceFactory.create_sentence(sentence_text=sentence_text, prev_sentence=prev_sentence)
+                print("Sentence text being added to the sentence object:", sentence_text)
+                sentence_objects.append(sentence)
+                if i > 0:
+                    sentence_objects[i - 1].next_sentence = sentence.id
+            else:
+                print(
+                    f"Empty sentence detected after splitting at index {i}. Original sentence text: '{sentence_text}'")
+        print(f"Total sentences detected: {len(sentence_objects)}")
         return sentence_objects
 
     def to_string(self):

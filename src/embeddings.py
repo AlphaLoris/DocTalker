@@ -1,5 +1,31 @@
 # embeddings.py module
 
+"""
+embeddings.py
+
+This module provides functions and classes for working with embeddings, including generating and storing embeddings for
+keywords and text.
+
+Functions:
+    - create_keyword_objects_from_txt: Create keyword objects from a text file.
+    - write_keywords_objects_to_file: Write keyword objects to a file in JSON format.
+    - read_keyword_objects_from_file: Read keyword objects from a file in JSON format.
+    - get_embedding: Retrieve the embedding for a given text using the OpenAI API.
+    - generate_embedding: Generate and assign embeddings for keyword, node, or sentence objects.
+
+Classes:
+    - KeyWord: Represents a keyword with an ID, word, and related properties.
+
+Notes:
+    - This module assumes that the required dependencies are installed and properly imported.
+    - The create_keyword_objects_from_txt function reads keywords from a text file and creates KeyWord objects.
+    - The write_keywords_objects_to_file and read_keyword_objects_from_file functions facilitate saving/loading keyword
+        objects.
+    - The KeyWord class provides methods for string representation and conversion to/from dictionaries.
+    - The get_embedding function retrieves the embedding for a given text using the OpenAI API.
+    - The generate_embedding function generates and assigns embeddings for keyword, node, or sentence objects.
+"""
+
 import os
 import re
 import json
@@ -7,8 +33,6 @@ import numpy as np
 from src.node import generate_unique_id, num_tokens_from_messages
 import openai
 from tenacity import retry, wait_random_exponential, stop_after_attempt
-
-# TODO: Develop ways to understand the embeddings
 
 
 # Set your OpenAI API key
@@ -97,59 +121,6 @@ def read_keyword_objects_from_file(input_file_path: str) -> dict:
         keywords_dict[keyword_id] = keyword
 
     return keywords_dict
-
-
-"""
-def write_keywords_objects_to_file(keywords_dict: dict, output_file_path: str):
-    with open(output_file_path, 'w') as output_file:
-        for keyword_obj in keywords_dict.values():
-            output_file.write(keyword_obj.to_string())
-            output_file.write("-----\n")
-
-
-def read_keyword_objects_from_file(input_file_path: str) -> dict:
-    keywords_dict = {}
-
-    with open(input_file_path, 'r') as input_file:
-        keyword_lines = input_file.readlines()
-
-    keyword_id = None
-    keyword = None
-    tokens_count = None
-    embedding_model = None
-    token_usage = None
-    embedding = []
-
-    for line in keyword_lines:
-        if line.startswith("id:"):
-            keyword_id = line.strip().split(":")[1].strip()
-        elif line.startswith("tokens_count:"):
-            tokens_count = int(line.strip().split(":")[1].strip())
-        elif line.startswith("text:"):
-            keyword = line.strip().split(":")[1].strip()
-        elif line.startswith("embedding_model:"):
-            embedding_model = line.strip().split(":")[1].strip()
-        elif line.startswith("token_usage:"):
-            token_usage = int(line.strip().split(":")[1].strip())
-        elif line.startswith("embedding:"):
-            embedding = np.array(eval(line.strip().split(":")[1].strip()))
-        elif line.startswith("-----"):
-            if keyword_id and keyword and tokens_count is not None:
-                keyword_obj = KeyWord(keyword_id, keyword)
-                keyword_obj.tokens_count = tokens_count
-                keyword_obj.embedding_model = embedding_model
-                keyword_obj.token_usage = token_usage
-                keyword_obj.embedding = embedding
-                keywords_dict[keyword_id] = keyword_obj
-                keyword_id = None
-                keyword = None
-                tokens_count = None
-                embedding_model = None
-                token_usage = None
-                embedding = []
-
-    return keywords_dict
-"""
 
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))

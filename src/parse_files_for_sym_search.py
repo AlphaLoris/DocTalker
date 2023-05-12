@@ -1,12 +1,38 @@
 # parse_files_for_sym_search.py module
 
+"""
+parse_files_for_sym_search.py
+
+This module provides functionality for parsing and analyzing documents for semantic search. It uses the DocumentManager
+class to handle document loading, keyword extraction, indexing, and saving/loading of manager state. The module also
+includes a function for performing a semantic search test using the provided DocumentManager.
+
+Usage:
+    2. Execute the module to perform the document parsing and semantic search test.
+    3. The module will prompt for a document file to parse and load.
+    4. The parsed documents will be processed and indexed using the DocumentManager.
+    5. If manager state files exist, they will be loaded; otherwise, new documents and keywords will be processed.
+    6. The Faiss index will be built based on the processed documents.
+    7. Manager state files will be saved for future use.
+    8. Finally, a semantic search test will be performed, providing search results.
+
+Dependencies:
+    - sys
+    - os
+    - tkinter
+    - filedialog from tkinter
+    - DocumentManager from document_manager
+    - numpy as np
+    - semantic_search_test from keyword_semantic_search_test
+"""
+
 import sys
 import os
 import tkinter as tk
 from tkinter import filedialog
 from document_manager import DocumentManager
 import numpy as np
-from semantic_search_test import semantic_search_test
+from keyword_semantic_search_test import semantic_search_test
 
 # TODO: Optimizations
 # TODO: Add a progress bar for document upload and parsing/embedding
@@ -17,6 +43,9 @@ from semantic_search_test import semantic_search_test
 # TODO: Optimize method of assembling results into prompt
 # TODO: Optimize prompt composition/characteristics/technique
 # TODO: Optimize response validation
+# TODO: Develop ways to evaluate and understand the semantic search performance
+# TODO: Develop ways to understand the relative characteristics of the embeddings
+# TODO: Page Numbers are not working. Would need to develop a new approach to parsing .docx files to get page numbers.
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)
 
