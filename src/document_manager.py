@@ -82,5 +82,20 @@ class DocumentManager:
     def load_manager_state(self, input_directory: str):
         self.document_nodes = read_document_nodes_from_file(f"{input_directory}/document_nodes.txt")
         self.keyword_objects = read_keyword_objects_from_file(f"{input_directory}/keywords.txt")
+
+        # Clear the embedding order list
+        self.embedding_order = []
+
+        # Rebuild the embedding order list for nodes
+        for node_id in self.document_nodes:
+            self.embedding_order.append(('node', node_id))
+            for sentence in self.document_nodes[node_id].create_sentence_list():
+                self.embedding_order.append(('sentence', sentence.id))
+
+        # Rebuild the embedding order list for keywords
+        for keyword_id in self.keyword_objects:
+            self.embedding_order.append(('keyword', keyword_id))
+
         self.faiss_index = FaissIndex([])
         self.faiss_index.load_index(f"{input_directory}/faiss_index")
+

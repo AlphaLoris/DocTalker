@@ -44,6 +44,7 @@ def semantic_search_test(doc_manager):
 
                 if embedding_type == 'node':
                     text_object = doc_manager.document_nodes[text_object_id]
+                    text = text_object.body_text
                 elif embedding_type == 'sentence':
                     text_object = None
                     for node in doc_manager.document_nodes.values():
@@ -53,10 +54,12 @@ def semantic_search_test(doc_manager):
                                 break
                         if text_object:
                             break
+                    text = text_object.text
                 elif embedding_type == 'keyword':
                     text_object = doc_manager.keyword_objects[text_object_id]
+                    text = text_object.word
 
-                output_file.write(f"\tNeighbor{i + 1} Text: {text_object.to_string()}\n")
+                output_file.write(f"\tNeighbor{i + 1} Text: {text}\n")
                 output_file.write(f"\tNeighbor{i + 1} Distance: {distance}\n\n")
 
             output_file.write("=====================================\n\n")
