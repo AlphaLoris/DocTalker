@@ -1,7 +1,7 @@
 # parse_files_for_sym_search.py module
 
 """
-parse_files_for_sym_search.py
+parse_files_for_sym_search.py Module
 
 This module provides functionality for parsing and analyzing documents for semantic search. It uses the DocumentManager
 class to handle document loading, keyword extraction, indexing, and saving/loading of manager state. The module also
@@ -31,6 +31,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog
 from document_manager import DocumentManager
+from keyword_manager import KeywordManager
 import numpy as np
 from keyword_semantic_search_test import semantic_search_test
 
@@ -68,6 +69,7 @@ if __name__ == '__main__':
 
             # Initialize DocumentManager
             doc_manager = DocumentManager()
+            keywrd_manager = KeywordManager()
 
             # Files
             nodes_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\document_nodes.txt"
@@ -92,8 +94,8 @@ if __name__ == '__main__':
                     # Handle the keywords
                     if os.path.exists(keyword_text_file_path):
                         print("Loading keywords...")
-                        doc_manager.load_keywords(keyword_text_file_path)
-                        print("Number of keyword objects:", len(doc_manager.keyword_objects))
+                        keywrd_manager.load_keywords(keyword_text_file_path)
+                        print("Number of keyword objects:", len(keywrd_manager.keyword_objects))
                         print("Done loading keywords.")
 
                     # Build Faiss index
@@ -112,7 +114,7 @@ if __name__ == '__main__':
             # Print the document_nodes and keyword objects to console
             for node in doc_manager.document_nodes.values():
                 print(node.to_string())
-            for word in doc_manager.keyword_objects.values():
+            for word in keywrd_manager.keyword_objects.values():
                 print(word.to_string())
 
     finally:

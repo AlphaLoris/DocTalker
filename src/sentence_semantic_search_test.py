@@ -1,7 +1,5 @@
-# keyword_semantic_search_test.py module
-
 """
-keyword_semantic_search_test.py
+sentence_semantic_search_test.py Module
 
 This module provides a function for performing semantic search using word embeddings. It takes a DocumentManager
 instance as input and performs semantic search on a list of words obtained from a user-selected text file. The function
@@ -27,10 +25,11 @@ Notes:
     - The number of nearest neighbors to find is set to 7 by default.
 """
 
+"""
 import tkinter as tk
 from tkinter import filedialog
 from embeddings import get_embedding
-from document_manager_old import DocumentManager
+from document_manager import DocumentManager
 
 
 def semantic_search_test(doc_manager):
@@ -98,3 +97,4 @@ def semantic_search_test(doc_manager):
 
 if __name__ == "__main__":
     semantic_search_test(doc_manager=DocumentManager())
+"""

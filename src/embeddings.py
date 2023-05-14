@@ -1,7 +1,5 @@
-# embeddings.py module
-
 """
-embeddings.py
+embeddings.py Module
 
 This module provides functions and classes for working with embeddings, including generating and storing embeddings for
 keywords and text.

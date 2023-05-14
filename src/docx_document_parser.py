@@ -1,7 +1,5 @@
-# docx_document_parser.py module
-
 """
-docx_document_parser.py
+docx_document_parser.py Module
 
 This module provides a DocxDocumentParser class for parsing and processing .docx files. The class extracts text
 elements, removes table of contents (TOC), condenses blank lines, and creates a dictionary of document nodes based on

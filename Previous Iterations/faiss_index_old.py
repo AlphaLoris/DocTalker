@@ -1,31 +1,31 @@
-"""
-faiss_index.py Module
+# faiss_index.py module
 
-This module provides a FaissIndex class for handling Faiss indexing of embeddings. The FaissIndex class facilitates the
-creation of an index, performs search operations, and supports saving/loading of the index.
+"""
+faiss_index.py
+
+This module provides a FaissIndex class for handling Faiss indexing of embeddings. The FaissIndex class creates an
+index, performs search operations, and supports saving/loading of the index.
 
 Usage:
-1. Create an instance of the FaissIndex class, providing the embeddings and the data type (node or sentence) as input.
-2. Use the create_index method to create the Faiss index.
-3. Perform search operations using the search method.
-4. Save or load the index using the save_index and load_index methods.
+    1. Create an instance of the FaissIndex class, providing the embeddings as input.
+    2. Use the create_index method to create the Faiss index.
+    3. Perform search operations using the search method.
+    4. Save or load the index using the save_index and load_index methods.
 
 Dependencies:
-- faiss
-- numpy as np
+    - faiss
+    - numpy as np
 
 Notes:
-- The FaissIndex class handles the creation of the Faiss index and search operations.
-- The index is created with an L2 metric and supports IVFFlat indexing.
-- The index can be saved and loaded using the Faiss library functions.
-- The class supports different data types, specifically nodes and sentences.
+    - The FaissIndex class handles the creation of the Faiss index and search operations.
+    - The index is created with an L2 metric and supports IVFFlat indexing.
+    - The index can be saved and loaded using the Faiss library functions.
 
 Conceptual notes are below the code.
 """
 
 import faiss
 import numpy as np
-
 
 # text-embedding-ada-002 embeddings = np.zeros((1, 1536))
 
@@ -37,8 +37,7 @@ import numpy as np
 
 
 class FaissIndex:
-    def __init__(self, embeddings, data_type):
-        self.data_type = data_type
+    def __init__(self, embeddings):
         self.embeddings_np = np.array(embeddings, dtype=np.float32)
         if len(self.embeddings_np.shape) == 3:
             self.embeddings_np = self.embeddings_np.squeeze(axis=1)
@@ -67,14 +66,16 @@ class FaissIndex:
         return indices, distances
 
     def save_index(self, index_path):
-        print(f"Saving Faiss index for {self.data_type} to", index_path)
+        if self.index is None:
+            raise ValueError('Index has not been created')
+        print("Saving Faiss index to", index_path)
         faiss.write_index(self.index, index_path)
-        print(f"Faiss index for {self.data_type} saved to", index_path)
+        print("Faiss index saved to", index_path)
 
     def load_index(self, index_path):
-        print(f"Loading Faiss index for {self.data_type} from", index_path)
+        print("Loading Faiss index from", index_path)
         self.index = faiss.read_index(index_path)
-        print(f"Faiss index for {self.data_type} loaded from", index_path)
+        print("Faiss index loaded from", index_path)
 
     def get_index(self):
         return self.index
@@ -101,7 +102,7 @@ The relationship between the quantizer and index in Faiss is as follows:
 
     The quantizer is used to transform the original vectors into quantized vectors, reducing the memory footprint and
      search complexity. The quantized vectors are then stored in the index structure.
-
+     
     The index structure utilizes the quantized vectors for efficient search operations, such as nearest neighbor search
      or similarity search.
 

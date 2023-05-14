@@ -1,7 +1,5 @@
-# node.py module
-
 """
-node.py
+node.py Module
 
 This module provides utility functions and classes for working with document nodes and sentences. It includes functions
 for generating unique IDs, counting tokens, reading/writing document nodes from/to files, and classes for DocumentNode
