@@ -120,7 +120,9 @@ if __name__ == '__main__':
                     print("Done saving manager state to files.")
 
             doc_manager.print_embedding_order()
-            semantic_search_test(doc_manager)
+            semantic_search_test(doc_manager, data_type='node')  # to search the 'node' index
+            # or
+            # semantic_search_test(doc_manager, data_type='sentence')  # to search the 'sentence' index
 
             # Write the document_nodes body_text a file
             doc_manager.save_nodes_body_text(nodes_txt_file_path)

@@ -33,7 +33,7 @@ from embeddings import get_embedding
 from document_manager import DocumentManager
 
 
-def semantic_search_test(doc_manager):
+def semantic_search_test(doc_manager, data_type='node'):  # default is 'node'
     # Launch a Windows file browser and get the .txt file path
     root = tk.Tk()
     root.withdraw()
@@ -50,21 +50,26 @@ def semantic_search_test(doc_manager):
         for word in words:
             # Get an embedding for the current word
             embedding_response = get_embedding(word)
-            # print(f"Embedding response for '{word}': {embedding_response}")
             embedding = embedding_response["data"][0]["embedding"]
 
             # Get the 7 nearest neighbors
             k = 7
-            indices, distances = doc_manager.search_similar_nodes(embedding, k)
+            indices, distances = doc_manager.search_similar_nodes(embedding, k, data_type)
 
             # Write the word and neighbors to the output file
             output_file.write(f"Word: {word}\n")
             for i, (index, distance) in enumerate(zip(indices, distances)):
                 index = int(index)  # Convert index to integer
                 print("Indices:", indices)
-                print("Length of embedding_order:", len(doc_manager.embedding_order))
-                print("Embedding order:", doc_manager.embedding_order[index])
-                embedding_type, text_object_id = doc_manager.embedding_order[index]
+                print("Length of embedding_order[node]:", len(doc_manager.embedding_order['node']))
+                print("Length of embedding_order[sentence]:", len(doc_manager.embedding_order['sentence']))
+
+                if data_type == 'node':
+                    print("Node Embedding order:", doc_manager.embedding_order['node'][index])
+                    embedding_type, text_object_id = doc_manager.embedding_order['node'][index]
+                elif data_type == 'sentence':
+                    print("Sentence Embedding order:", doc_manager.embedding_order['sentence'][index])
+                    embedding_type, text_object_id = doc_manager.embedding_order['sentence'][index]
 
                 if embedding_type == 'node':
                     text_object = doc_manager.document_nodes[text_object_id]
@@ -85,7 +90,7 @@ def semantic_search_test(doc_manager):
                         text = ""
                     else:
                         text = text_object.text
-                        output_file.write(f"\tNeighbor{i + 1} ID: {text_object_id}\n")
+                        # output_file.write(f"\tNeighbor{i + 1} ID: {text_object_id}\n")  <== Remove this line
                 elif embedding_type == 'keyword':
                     text_object = doc_manager.keyword_objects[text_object_id]
                     text = text_object.word
