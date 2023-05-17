@@ -30,7 +30,7 @@ Notes:
 import tkinter as tk
 from tkinter import filedialog
 from embeddings import get_embedding
-from document_manager_old import DocumentManager
+from document_manager import DocumentManager
 
 
 def semantic_search_test(doc_manager):
@@ -63,6 +63,7 @@ def semantic_search_test(doc_manager):
                 index = int(index)  # Convert index to integer
                 print("Indices:", indices)
                 print("Length of embedding_order:", len(doc_manager.embedding_order))
+                print("Embedding order:", doc_manager.embedding_order[index])
                 embedding_type, text_object_id = doc_manager.embedding_order[index]
 
                 if embedding_type == 'node':

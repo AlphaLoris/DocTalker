@@ -47,6 +47,7 @@ from keyword_semantic_search_test import semantic_search_test
 # TODO: Develop ways to evaluate and understand the semantic search performance
 # TODO: Develop ways to understand the relative characteristics of the embeddings
 # TODO: Page Numbers are not working. Would need to develop a new approach to parsing .docx files to get page numbers.
+# TODO: Tune nlist and nprobe for Faiss index
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)
 
@@ -69,12 +70,15 @@ if __name__ == '__main__':
 
             # Initialize DocumentManager
             doc_manager = DocumentManager()
+            # Initialize KeywordManager
             keywrd_manager = KeywordManager()
 
             # Files
             nodes_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\document_nodes.txt"
             keyword_objects_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\keywords.txt"
             keyword_text_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\\Experiments\Experiments2\Key Words.txt"
+            nodes_txt_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\document_nodes_body_text.txt"
+            sentences_txt_file_path = r"c:\Users\glenn\OneDrive\Documents\Glenn's Docs\Linklings\WIP\Experiments\Experiments2\sentences.txt"
 
             # Handle the nodes
             if os.path.exists(nodes_file_path):
@@ -98,6 +102,12 @@ if __name__ == '__main__':
                         print("Number of keyword objects:", len(keywrd_manager.keyword_objects))
                         print("Done loading keywords.")
 
+                    # Write the document_nodes dictionary to the console
+                    doc_manager.print_first_five_words_of_nodes()
+
+                    # Write the embedding order dictionary to the console
+                    doc_manager.print_embedding_order()
+
                     # Build Faiss index
                     print("Building Faiss index...")
                     doc_manager.build_faiss_index()
@@ -109,7 +119,14 @@ if __name__ == '__main__':
                     doc_manager.save_manager_state(output_directory)
                     print("Done saving manager state to files.")
 
+            doc_manager.print_embedding_order()
             semantic_search_test(doc_manager)
+
+            # Write the document_nodes body_text a file
+            doc_manager.save_nodes_body_text(nodes_txt_file_path)
+
+            # Write the sentences text to a file
+            doc_manager.save_sentence_text(sentences_txt_file_path)
 
             # Print the document_nodes and keyword objects to console
             for node in doc_manager.document_nodes.values():
