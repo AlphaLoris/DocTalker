@@ -31,6 +31,8 @@ import numpy as np
 from src.node import generate_unique_id, num_tokens_from_messages
 import openai
 from tenacity import retry, wait_random_exponential, stop_after_attempt
+from typing import List, Dict, Union
+from node import DocumentNode, Sentence
 
 
 # Set your OpenAI API key
@@ -44,7 +46,18 @@ else:
 
 
 class KeyWord:
-    def __init__(self, keyword_id, keyword):
+    """
+    Class that represents a keyword with an ID, word, and related properties.
+    """
+    def __init__(self, keyword_id: str, keyword: str):
+        """
+        Constructor for the KeyWord class.
+
+        :param keyword_id: ID of the keyword
+        :type keyword_id: str
+        :param keyword: The keyword itself
+        :type keyword: str
+        """
         self.id = keyword_id
         self.word = keyword
         self.tokens_count = num_tokens_from_messages([self.word]) - 6
@@ -52,7 +65,13 @@ class KeyWord:
         self.embedding_model = ""
         self.token_usage = 0
 
-    def to_string(self):
+    def to_string(self) -> str:
+        """
+        Converts the keyword object to a string.
+
+        :return: String representation of the keyword object
+        :rtype: str
+        """
         result = ""
         result += "id:\n" + str(self.id) + "\n\n"
         result += "tokens_count:\n" + str(self.tokens_count) + "\n\n"
@@ -63,7 +82,13 @@ class KeyWord:
         result += "\n"
         return result
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[int, str, List[float]]]:
+        """
+        Converts the keyword object to a dictionary.
+
+        :return: Dictionary representation of the keyword object
+        :rtype: dict
+        """
         return {
             "id": self.id,
             "word": self.word,
@@ -74,7 +99,15 @@ class KeyWord:
         }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: Dict[str, Union[int, str, List[float]]]) -> 'KeyWord':
+        """
+        Creates a keyword object from a dictionary.
+
+        :param data: Dictionary representing a keyword object
+        :type data: dict
+        :return: Keyword object created from the dictionary
+        :rtype: KeyWord
+        """
         keyword = cls(data["id"], data["word"])
         keyword.tokens_count = data["tokens_count"]
         keyword.embedding = np.array(data["embedding"])  # list to np.ndarray
@@ -83,7 +116,15 @@ class KeyWord:
         return keyword
 
 
-def create_keyword_objects_from_txt(keyword_file_path: str) -> dict:
+def create_keyword_objects_from_txt(keyword_file_path: str) -> Dict[str, KeyWord]:
+    """
+    Creates keyword objects from a text file.
+
+    :param keyword_file_path: Path to the text file
+    :type keyword_file_path: str
+    :return: Dictionary of keyword objects
+    :rtype: dict
+    """
     keywords_dict = {}
 
     with open(keyword_file_path, 'r') as file:
@@ -98,7 +139,15 @@ def create_keyword_objects_from_txt(keyword_file_path: str) -> dict:
     return keywords_dict
 
 
-def write_keywords_objects_to_file(keywords_dict: dict, output_file_path: str):
+def write_keywords_objects_to_file(keywords_dict: Dict[str, KeyWord], output_file_path: str) -> None:
+    """
+    Writes keyword objects to a file in JSON format.
+
+    :param keywords_dict: Dictionary of keyword objects
+    :type keywords_dict: dict
+    :param output_file_path: Path to the output file
+    :type output_file_path: str
+    """
     with open(output_file_path, 'w') as output_file:
         json.dump(
             {k: v.to_dict() for k, v in keywords_dict.items()},
@@ -108,7 +157,15 @@ def write_keywords_objects_to_file(keywords_dict: dict, output_file_path: str):
         )
 
 
-def read_keyword_objects_from_file(input_file_path: str) -> dict:
+def read_keyword_objects_from_file(input_file_path: str) -> Dict[str, KeyWord]:
+    """
+    Reads keyword objects from a file in JSON format.
+
+    :param input_file_path: Path to the input file
+    :type input_file_path: str
+    :return: Dictionary of keyword objects
+    :rtype: dict
+    """
     keywords_dict = {}
 
     with open(input_file_path, 'r') as input_file:
@@ -122,11 +179,27 @@ def read_keyword_objects_from_file(input_file_path: str) -> dict:
 
 
 @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
-def get_embedding(text: str, model="text-embedding-ada-002") -> dict:
+def get_embedding(text: str, model="text-embedding-ada-002") -> Dict[str, Union[str, List[float]]]:
+    """
+    Retrieves the embedding for a given text using the OpenAI API.
+
+    :param text: Text to retrieve the embedding for
+    :type text: str
+    :param model: Model to use for the embedding
+    :type model: str
+    :return: Embedding for the text
+    :rtype: dict
+    """
     return openai.Embedding.create(input=[text], model=model)
 
 
-def generate_embedding(obj) -> None:
+def generate_embedding(obj: Union[KeyWord, DocumentNode, Sentence]) -> None:
+    """
+    Generates and assigns embeddings for keyword, node, or sentence objects.
+
+    :param obj: Object to generate an embedding for
+    :type obj: Union[KeyWord, Node, Sentence]
+    """
     # Determine the appropriate text attribute for the object
     if hasattr(obj, "body_text"):
         # Object is a Node
@@ -155,9 +228,12 @@ def generate_embedding(obj) -> None:
     print("Response received for: ", obj.id)
 
     # Extract values from the response JSON
-    embedding = response["data"][0]["embedding"]
-    model = response["model"]
-    total_tokens = response["usage"]["total_tokens"]
+    try:
+        embedding = response["data"][0]["embedding"]
+        model = response["model"]
+        total_tokens = response["usage"]["total_tokens"]
+    except KeyError as e:
+        raise RuntimeError(f"Failed to parse response: missing key {e}")
 
     # Assign the values to the relevant attributes
     print("Assigning embedding value to: ", obj.id)

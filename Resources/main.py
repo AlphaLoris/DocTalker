@@ -1,12 +1,3 @@
-# TODO: Add docstrings to the components
-# TODO: Add Logging to the components
-# TODO: Add unit tests to the components
-# TODO: Memory of previous conversations with User
-# TODO: Allow the user to choose the level of error checking
-# TODO: Expose all behavioral parameters to the user: Model parameters, Tokenizer parameters, error checking, etc.
-# TODO: Capture the questions the model had trouble answering and use them to improve the documentation
-# TODO: Add a setup wizard that sets up the environment and configures the application
-# TODO: Remove the OPENAI API KEY from the code and use a config file instead
 
 #  C:\Users\glenn\anaconda3\envs\doc_talker_faiss
 

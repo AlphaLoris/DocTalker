@@ -38,6 +38,17 @@ import numpy as np
 
 class FaissIndex:
     def __init__(self, embeddings, data_type):
+        """
+        The constructor initializes a FaissIndex object using a set of embeddings and a data type. The embeddings is a
+        list (or similar collection) of vectors, and data_type is a string describing the data (node, sentence, or
+        keyword). The constructor converts the input embeddings into a numpy array of type float32, which is the
+        required input format for FAISS. Because the text-embedding-ada-002 embeddings have three dimensions and Faiss
+        just uses two dimensions, it removes the middle dimension by squeezing the numpy array.
+        :param embeddings: A list of vectors to be indexed.
+        :type: list
+        :param data_type:  A string indicating the type of data in the index.
+        :type: str
+        """
         self.data_type = data_type
         self.embeddings_np = np.array(embeddings, dtype=np.float32)
         if len(self.embeddings_np.shape) == 3:
@@ -45,6 +56,17 @@ class FaissIndex:
         self.index = None
 
     def create_index(self, nlist=100, nprobe=10):
+        """
+        Creates a Faiss IndexIVFFlat index with an L2 (Euclidean) metric and an IndexFlatL2 quantizer using the class's
+        embeddings. The index is trained and the embeddings are added to it.
+        User Guide: https://github.com/facebookresearch/faiss/wiki/Faiss-building-blocks:-clustering,-PCA,-quantization
+        :param nlist: The number of clusters to use in the index.
+        :type: int
+        :param nprobe: The number of clusters to search during a search operation.
+        :type: int
+        :return: None
+        :rtype: None
+        """
         print("Creating index in FaissIndex.create_index()")
         d = self.embeddings_np.shape[1]
         quantizer = faiss.IndexFlatL2(d)
@@ -56,7 +78,18 @@ class FaissIndex:
         self.index.add(self.embeddings_np)
         print("Index created in FaissIndex.create_index()")
 
-    def search(self, query_embedding, k):
+    def search(self, query_embedding, k) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Performs a search operation on the index using the query_embedding and returns the indices and distances of the
+        k nearest neighbors.
+        :param query_embedding: The embedding vector to search for in the index.
+        :type query_embedding: array_like
+        :param k: The number of nearest neighbors to return.
+        :type k: int
+        :return: A tuple where the first element is the indices of the k nearest neighbors and the second element
+             is their corresponding distances.
+        :rtype: tuple of (numpy.ndarray, numpy.ndarray)
+        """
         if self.index is None:
             raise ValueError('Index has not been created')
         query_np = np.array(query_embedding, dtype=np.float32)
@@ -67,46 +100,46 @@ class FaissIndex:
         return indices, distances
 
     def save_index(self, index_path):
+        """
+        Saves the index to the specified path.
+        :param index_path: The path to save the index to.
+        :return: None
+        """
         print(f"Saving Faiss index for {self.data_type} to", index_path)
         faiss.write_index(self.index, index_path)
         print(f"Faiss index for {self.data_type} saved to", index_path)
 
     def load_index(self, index_path):
+        """
+        Loads the index from the specified path.
+        :param index_path: The path to load the index from.
+        :return: None
+        """
         print(f"Loading Faiss index for {self.data_type} from", index_path)
         self.index = faiss.read_index(index_path)
         print(f"Faiss index for {self.data_type} loaded from", index_path)
 
     def get_index(self):
+        """
+        Returns the index.
+        :return: The index.
+        """
         return self.index
 
-
 """
+In Faiss, quantizers map vectors to discrete centroids, partitioning the vector space and compressing vectors for
+reduced memory and complexity. Various quantization methods like Product Quantization (PQ) and Scalar Quantization (SQ)
+are available. The quantized vectors are stored in the index, the data structure used for efficient similarity search.
+Index types include IVF, IVFADC, and HNSW, each with different memory, speed, and accuracy characteristics.
 
-When using Faiss, the quantizer and index are closely related components, but they are not specific to one another.
-Let's understand the purpose and relationship between these components:
+The quantizer and index are interconnected but serve different roles. The quantizer manages vector compression and
+quantization, while the index enables fast search operations on these quantized vectors.
 
-    Quantizer: The quantizer in Faiss is responsible for mapping vectors to a discrete set of centroids. It divides the
-     vector space into smaller regions by creating a codebook of representative vectors called centroids. The quantizer
-     compresses the vectors by assigning them to the nearest centroid. Faiss provides different quantization methods,
-     such as Product Quantization (PQ) and Scalar Quantization (SQ), which can be chosen based on the application
-     requirements.
+IndexIVFFlat, a Faiss index, uses the Inverted File with Flat vectors (IVF) algorithm, balancing accuracy and
+efficiency. IndexFlatL2, another index type, uses L2 distance for similarity and stores uncompressed vectors. It's used
+as a quantizer for IndexIVFFlat in this code.
 
-    Index: The index in Faiss is the data structure used for efficient similarity search. It organizes the compressed
-     vectors (quantized vectors) into a structure that enables fast search operations. Faiss provides various index
-     types, including IVF (Inverted File), IVFADC (Inverted File with Asymmetric Distance Computation), and HNSW
-     (Hierarchical Navigable Small World). Each index type has different characteristics in terms of memory usage,
-     search speed, and accuracy.
-
-The relationship between the quantizer and index in Faiss is as follows:
-
-    The quantizer is used to transform the original vectors into quantized vectors, reducing the memory footprint and
-     search complexity. The quantized vectors are then stored in the index structure.
-
-    The index structure utilizes the quantized vectors for efficient search operations, such as nearest neighbor search
-     or similarity search.
-
-In summary, while the quantizer and index are interrelated components in Faiss, they serve distinct purposes. The
- quantizer compresses and quantizes the vectors, while the index organizes and facilitates fast search operations on the
- quantized vectors.
-
+The quantizer also clusters vectors for an IVF index, with the number of clusters determined by 'nlist'. During a
+search, Faiss examines a subset of clusters (controlled by 'nprobe') for efficiency. Before searching, an IVF index is
+trained with a representative vector sample to learn the dataset's distribution.
 """

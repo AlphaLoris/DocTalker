@@ -30,13 +30,25 @@ Notes:
 
 import zipfile
 from lxml import etree
+from lxml.etree import ElementBase
 from docx import Document
-from node import NodeFactory
+from node import DocumentNode, NodeFactory
+from typing import Dict, List, Tuple
 import re
 
 
 class DocxDocumentParser:
-    def __init__(self, file_path):
+    """
+    This class provides a parser for .docx documents. It is capable of extracting text elements,
+    removing TOCs, condensing blank lines, and creating document nodes from the extracted text.
+    """
+    def __init__(self, file_path: str):
+        """
+        Initializes the parser with the given file path.
+
+        :param file_path: Path to the .docx document to be parsed.
+        :type file_path: str
+        """
         self.file_path = file_path
         self.document_xml_bytes = None
         self.document_title = None
@@ -53,7 +65,13 @@ class DocxDocumentParser:
         # Get the document title
         self.document_title = DocxDocumentParser.get_docx_title(self.file_path)
 
-    def process_document(self):
+    def process_document(self) -> Dict[str, DocumentNode]:
+        """
+        Parses and processes the document. Returns a dictionary of document nodes.
+
+        :return: A dictionary of document nodes. The keys are the node IDs and the values are the nodes.
+        :rtype: Dict[str, Node]
+        """
         self.doc_root = self.parse()
         self.remove_toc()
         self.condense_blank_lines()
@@ -90,6 +108,14 @@ class DocxDocumentParser:
     # Attempt to get the title of a .docx file from its metadata.
     @staticmethod
     def get_docx_title(doc_file_path: str) -> str:
+        """
+        Attempts to get the title of a .docx file from its metadata.
+
+        :param doc_file_path: Path to the .docx document.
+        :type doc_file_path: str
+        :return: The title of the document, or an empty string if no title could be found.
+        :rtype: str
+        """
         doc = Document(doc_file_path)
         core_properties = doc.core_properties
 
@@ -102,12 +128,21 @@ class DocxDocumentParser:
                 return paragraph.text.strip()
         return ""
 
-    def parse(self):
+    def parse(self) -> ElementBase:
+        """
+        Parses the document and returns its XML root element.
+
+        :return: The root element of the XML tree representing the document.
+        :rtype: etree._Element
+        """
         self.doc_root = etree.fromstring(self.document_xml_bytes)
         self.xml_tree = self.doc_root
         return self.doc_root
 
-    def remove_toc(self):
+    def remove_toc(self) -> None:
+        """
+        Removes the Table of Contents (TOC) and its header if it exists from the document.
+        """
         xpath_toc = "//w:sdt/w:sdtPr/w:docPartObj/w:docPartGallery[@w:val='Table of Contents']"
 
         # Find the TOC element
@@ -131,7 +166,10 @@ class DocxDocumentParser:
             if header_element is not None:
                 header_element.getparent().remove(header_element)
 
-    def condense_blank_lines(self):
+    def condense_blank_lines(self) -> None:
+        """
+        Removes consecutive blank lines from the document and adjusts line spacing.
+        """
         namespaces = self.doc_root.nsmap
         paragraphs = self.doc_root.findall(".//w:p", namespaces)
         remove_elements = []
@@ -152,7 +190,13 @@ class DocxDocumentParser:
         for elem in remove_elements:
             elem.getparent().remove(elem)
 
-    def extract_text_elements(self):
+    def extract_text_elements(self) -> List[Tuple[str, str, List[str], List[int]]]:
+        """
+        Extracts text elements from the document and handles headings.
+
+        :return: A list of tuples, where each tuple represents a text element and its properties.
+        :rtype: List[Tuple[str, str, List[str], List[int]]]
+        """
         paragraphs = self.doc_root.findall('.//w:p', self.doc_root.nsmap)
         doc_text_contents = []
         doc_current_headings = []
@@ -193,7 +237,15 @@ class DocxDocumentParser:
 
         return doc_text_contents
 
-    def extract_page_numbers(self, paragraph):
+    def extract_page_numbers(self, paragraph: ElementBase) -> List[int]:
+        """
+        Extracts page numbers from the given paragraph element.
+
+        :param paragraph: An XML element representing a paragraph in the document.
+        :type paragraph: etree._Element
+        :return: A list of page numbers extracted from the paragraph.
+        :rtype: List[int]
+        """
         page_breaks = paragraph.findall(".//w:br[@w:type='page']", namespaces=self.nsmap)
         page_numbers = []
 

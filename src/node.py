@@ -28,18 +28,35 @@ Notes:
 
 import uuid
 import re
-from typing import List
+from typing import List, Optional
 import tiktoken
 import numpy as np
 import json
 
 
-def generate_unique_id():
+def generate_unique_id() -> str:
+    """
+    Generates a unique ID using UUID. Used for document nodes and sentences.
+
+    :return: A unique ID
+    :rtype: str
+    """
     return str(uuid.uuid4())
 
 
-def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301"):
-    """Returns the number of tokens used by a list of messages."""
+def num_tokens_from_messages(messages: List[str], model: str = "gpt-3.5-turbo-0301") -> int:
+    """
+    Returns the number of tokens used by a list of messages. Used for allocating the available context window space for
+    a prompt
+
+    :param messages: List of messages to calculate token count from
+    :type messages: List[str]
+    :param model: Model name to use for tokenization (default is "gpt-3.5-turbo-0301")
+    :type model: str
+    :return: Total number of tokens in the messages
+    :rtype: int
+    :raises NotImplementedError: If method is not implemented for provided model
+    """
     try:
         encoding = tiktoken.encoding_for_model(model)
     except KeyError:
@@ -56,7 +73,15 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0301"):
         raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.""")
 
 
-def write_document_nodes_to_file(document_nodes_dict: dict, output_file_path: str):
+def write_document_nodes_to_file(document_nodes_dict: dict, output_file_path: str) -> None:
+    """
+    Writes document nodes to a file in JSON format.
+
+    :param document_nodes_dict: Dictionary of document nodes to write to file
+    :type document_nodes_dict: dict
+    :param output_file_path: Path of the output file
+    :type output_file_path: str
+    """
     with open(output_file_path, 'w') as output_file:
         json.dump(
             {k: v.to_dict() for k, v in document_nodes_dict.items()},
@@ -67,6 +92,14 @@ def write_document_nodes_to_file(document_nodes_dict: dict, output_file_path: st
 
 
 def read_document_nodes_from_file(input_file_path: str) -> dict:
+    """
+    Reads document nodes from a file in JSON format.
+
+    :param input_file_path: Path of the input file
+    :type input_file_path: str
+    :return: Dictionary of document nodes read from file
+    :rtype: dict
+    """
     document_nodes_dict = {}
 
     with open(input_file_path, 'r') as input_file:
@@ -80,7 +113,28 @@ def read_document_nodes_from_file(input_file_path: str) -> dict:
 
 
 class DocumentNode:
-    def __init__(self, title, headings, body_text, page_numbers, prev_node=None, next_node=None):
+    def __init__(self, title: str, headings: str, body_text: str, page_numbers: Optional[List[int]],
+                 prev_node: Optional[str] = None, next_node: Optional[str] = None) -> None:
+        """
+        Represents a document node with title, headings, body text, page numbers, the ids of the previous and next nodes
+        to maintain the relative order of the document text, a list of the individual sentences within the body text, a
+        count of the number of tokens the text represents as the basis for sizing it when composing a prompt for a model
+        with a limited context window; the embedding of the text, the name of the model used to generate the embedding,
+        and the number of tokens consumed when generating the embedding.
+
+        :param title: Title of the document node
+        :type title: str
+        :param headings: Headings in the document node
+        :type headings: str
+        :param body_text: Body text of the document node
+        :type body_text: str
+        :param page_numbers: List of page numbers associated with the document node
+        :type page_numbers: Optional[List[int]]
+        :param prev_node: ID of the previous node
+        :type prev_node: Optional[str]
+        :param next_node: ID of the next node
+        :type next_node: Optional[str]
+        """
         self.id = generate_unique_id()
         self.title = title
         self.headings = headings
@@ -94,22 +148,15 @@ class DocumentNode:
         self.embedding_model = ""
         self.token_usage = 0
 
-    """
     def create_sentence_list(self) -> List['Sentence']:
-        sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?])\s', self.body_text)
-        sentence_objects = []
-        for i, sentence_text in enumerate(sentences):
-            # Check if the sentence_text is not empty after stripping whitespace characters
-            if sentence_text.strip():
-                prev_sentence = sentence_objects[-1].id if i > 0 else None
-                sentence = SentenceFactory.create_sentence(sentence_text=sentence_text, prev_sentence=prev_sentence)
-                sentence_objects.append(sentence)
-                if i > 0:
-                    sentence_objects[i - 1].next_sentence = sentence.id
-        return sentence_objects
-    """
+        """
+        Splits the document's body text into individual sentences and returns them as Sentence objects. The sentences
+        will be used to incrementally expand the node text when composing a prompt for a model with a limited context
+        window.
 
-    def create_sentence_list(self) -> List['Sentence']:
+        :return: A list of Sentence objects
+        :rtype: List['Sentence']
+        """
         sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?])\s', self.body_text)
         sentence_objects = []
         for i, sentence_text in enumerate(sentences):
@@ -127,7 +174,13 @@ class DocumentNode:
         print(f"Total sentences detected: {len(sentence_objects)}")
         return sentence_objects
 
-    def to_string(self):
+    def to_string(self) -> str:
+        """
+        Returns a string representation of the DocumentNode object.
+
+        :return: A string representation of the DocumentNode object
+        :rtype: str
+        """
         result = ""
         result += "prev_node:\n" + str(self.prev_node) + "\n\n"
         result += "id:\n" + str(self.id) + "\n\n"
@@ -147,7 +200,13 @@ class DocumentNode:
         result += "\n"
         return result
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Returns a dictionary representation of the DocumentNode object when it is serialized to JSON.
+
+        :return: A dictionary representation of the DocumentNode object
+        :rtype: dict
+        """
         return {
             "prev_node": self.prev_node,
             "id": str(self.id),
@@ -164,7 +223,15 @@ class DocumentNode:
         }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict) -> 'DocumentNode':
+        """
+        Creates a DocumentNode object from a dictionary representation when it is deserialized from JSON.
+
+        :param data: A dictionary representation of a DocumentNode object
+        :type data: dict
+        :return: A DocumentNode object
+        :rtype: DocumentNode
+        """
         node = cls(
             title=data["title"],
             headings=data["headings"],
@@ -183,7 +250,24 @@ class DocumentNode:
 
 
 class Sentence:
-    def __init__(self, sentence_id, sentence_text, prev_sentence=None, next_sentence=None):
+    def __init__(self, sentence_id: uuid, sentence_text: str, prev_sentence: Optional[uuid] = None,
+                 next_sentence: Optional[uuid] = None) -> None:
+        # TODO: It may make sense to add a reference to the document node that the sentence belongs to.
+        # TODO: Do the first and last sentences within this node have links to the sentences in the previous and next
+        #  nodes?
+        """
+        Represents a sentence within a document node with text, ID, links to the previous and next sentences in the
+        document node.
+
+        :param sentence_id: ID of the sentence
+        :type sentence_id: str
+        :param sentence_text: Text of the sentence
+        :type sentence_text: str
+        :param prev_sentence: ID of the previous sentence
+        :type prev_sentence: Optional[str]
+        :param next_sentence: ID of the next sentence
+        :type next_sentence: Optional[str]
+        """
         self.id = sentence_id
         self.text = sentence_text
         self.prev_sentence = prev_sentence
@@ -193,7 +277,13 @@ class Sentence:
         self.embedding_model = ""
         self.token_usage = 0
 
-    def to_string(self):
+    def to_string(self) -> str:
+        """
+        Returns a string representation of the Sentence object.
+
+        :return: A string representation of the Sentence object
+        :rtype: str
+        """
         result = ""
         result += "prev_sentence:\n" + str(self.prev_sentence) + "\n\n"
         result += "id:\n" + str(self.id) + "\n\n"
@@ -206,7 +296,13 @@ class Sentence:
         result += "\n"
         return result
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Returns a dictionary representation of the Sentence object as part of serializing the sentence to a file.
+
+        :return: A dictionary representation of the Sentence object
+        :rtype: dict
+        """
         return {
             "prev_sentence": self.prev_sentence,
             "id": str(self.id),
@@ -219,7 +315,15 @@ class Sentence:
         }
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict) -> 'Sentence':
+        """
+        Creates a Sentence object from a dictionary representation as part of deserializing the sentence from a file.
+
+        :param data: A dictionary representation of a Sentence object
+        :type data: dict
+        :return: A Sentence object
+        :rtype: Sentence
+        """
         sentence = cls(
             sentence_id=uuid.UUID(data["id"]),
             sentence_text=data["text"],
@@ -235,12 +339,42 @@ class Sentence:
 
 class NodeFactory:
     @classmethod
-    def create_node(cls, title, headings, body_text, prev_node=None, next_node=None):
+    def create_node(cls, title: str, headings: str, body_text: str, prev_node: Optional[uuid] = None,
+                    next_node: Optional[uuid] = None) -> DocumentNode:
+        """
+        Factory method to create a DocumentNode object.
+
+        :param title: Title of the document node
+        :type title: str
+        :param headings: Headings in the document node
+        :type headings: str
+        :param body_text: Body text of the document node
+        :type body_text: str
+        :param prev_node: ID of the previous node
+        :type prev_node: Optional[str]
+        :param next_node: ID of the next node
+        :type next_node: Optional[str]
+        :return: A DocumentNode object
+        :rtype: DocumentNode
+        """
         return DocumentNode(title, headings, body_text, prev_node, next_node)
 
 
 class SentenceFactory:
     @classmethod
-    def create_sentence(cls, sentence_text, prev_sentence=None, next_sentence=None):
+    def create_sentence(cls, sentence_text: str, prev_sentence: Optional[str] = None,
+                        next_sentence: Optional[str] = None) -> Sentence:
+        """
+        Factory method to create a Sentence object.
+
+        :param sentence_text: Text of the sentence
+        :type sentence_text: str
+        :param prev_sentence: ID of the previous sentence
+        :type prev_sentence: Optional[str]
+        :param next_sentence: ID of the next sentence
+        :type next_sentence: Optional[str]
+        :return: A Sentence object
+        :rtype: Sentence
+        """
         sentence_id = generate_unique_id()
         return Sentence(sentence_id, sentence_text, prev_sentence, next_sentence)

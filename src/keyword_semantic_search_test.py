@@ -90,7 +90,7 @@ def semantic_search_test(doc_manager, data_type='node'):  # default is 'node'
                         text = ""
                     else:
                         text = text_object.text
-                        # output_file.write(f"\tNeighbor{i + 1} ID: {text_object_id}\n")  <== Remove this line
+                        # output_file.write(f"\tNeighbor{i + 1} ID: {text_object_id}\n")
                 elif embedding_type == 'keyword':
                     text_object = doc_manager.keyword_objects[text_object_id]
                     text = text_object.word
