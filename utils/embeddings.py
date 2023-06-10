@@ -28,7 +28,7 @@ import os
 import re
 import json
 import numpy as np
-from src.node import generate_unique_id, num_tokens_from_messages
+from utils.node import generate_unique_id, num_tokens_from_messages
 import openai
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 from typing import List, Dict, Union

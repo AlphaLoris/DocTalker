@@ -5,10 +5,10 @@ import sys
 import os
 import tkinter as tk
 from tkinter import filedialog
-from src.docx_document_parser import DocxDocumentParser
-from src.embeddings import create_keyword_objects_from_txt, write_keywords_objects_to_file, \
+from utils.docx_document_parser import DocxDocumentParser
+from utils.embeddings import create_keyword_objects_from_txt, write_keywords_objects_to_file, \
     read_keyword_objects_from_file, generate_embedding
-from src.node import read_document_nodes_from_file, write_document_nodes_to_file
+from utils.node import read_document_nodes_from_file, write_document_nodes_to_file
 import numpy as np
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)

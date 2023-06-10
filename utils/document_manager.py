@@ -28,10 +28,10 @@ their order.
 """
 
 from typing import Dict
-from src.docx_document_parser import Document
+from utils.docx_document_parser import Document
 from node import DocumentNode
 from typing import List, Tuple
-from src.docx_document_parser import DocxDocumentParser
+from utils.docx_document_parser import DocxDocumentParser
 from embeddings import generate_embedding
 from faiss_index import FaissIndex
 from node import write_document_nodes_to_file, read_document_nodes_from_file
@@ -162,33 +162,11 @@ class DocumentManager:
             # small
             self.faiss_indexes[data_type].create_index(nlist, nprobe)
 
-    """
-    def build_faiss_index(self):
-        for data_type in ['node', 'sentence']:
-            embeddings = []
-            print(f"Length of {data_type} embedding_order before building the index:",
-                  len(self.embedding_order[data_type]))
-            for _, id in self.embedding_order[data_type]:
-                if data_type == 'node':
-                    embeddings.append(self.document_nodes[id].embedding)
-                else:  # data_type == 'sentence'
-                    embeddings.append(self.document_nodes[id].sentence_list[id].embedding)
-            self.faiss_indexes[data_type] = FaissIndex(embeddings, data_type)
-            self.faiss_indexes[data_type].create_index()
-    """
-
     def search_similar_nodes(self, query_embedding: List[float], k: int, data_type='node') -> \
             Tuple[List[int], List[float]]:
         # print("self.faiss_indexes[datatype]" + self.faiss_indexes[data_type])
         indices, distances = self.faiss_indexes[data_type].search(np.array([query_embedding]), k)
         return indices[0].tolist(), distances[0].tolist()
-
-    """
-    def save_manager_state(self, output_directory: str):
-        write_document_nodes_to_file(self.document_nodes, f"{output_directory}/document_nodes.txt")
-        for data_type in ['node', 'sentence']:
-            self.faiss_indexes[data_type].save_index(f"{output_directory}/faiss_index_{data_type}")
-    """
 
     def save_manager_state(self, output_directory: str):
         write_document_nodes_to_file(self.document_nodes, f"{output_directory}/document_nodes.txt")
@@ -197,29 +175,6 @@ class DocumentManager:
         # Save the embedding_order
         with open(f"{output_directory}/embedding_order.json", 'w') as f:
             json.dump(self.embedding_order, f)
-
-    """
-    def load_manager_state(self, input_directory: str):
-        self.document_nodes = read_document_nodes_from_file(f"{input_directory}/document_nodes.txt")
-
-        # Clear the embedding order list
-        self.embedding_order = []
-
-        # Rebuild the embeddings and their order
-        embeddings = {'node': [], 'sentence': []}
-        self.embedding_order = {'node': [], 'sentence': []}
-        for node_id, node in self.document_nodes.items():
-            self.embedding_order['node'].append(('node', node_id))
-            embeddings['node'].append(node.embedding)
-            for sentence in node.create_sentence_list():
-                self.embedding_order['sentence'].append(('sentence', sentence.id))
-                embeddings['sentence'].append(sentence.embedding)
-
-        # Loading the faiss index
-        for data_type in ['node', 'sentence']:
-            self.faiss_indexes[data_type] = FaissIndex(embeddings[data_type], data_type)
-            self.faiss_indexes[data_type].load_index(f"{input_directory}/faiss_index_{data_type}")
-        """
 
     def load_manager_state(self, input_directory: str):
         self.document_nodes = read_document_nodes_from_file(f"{input_directory}/document_nodes.txt")

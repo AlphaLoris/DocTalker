@@ -61,3 +61,21 @@ def send_request(model, prompt, temperature, top_p, n, stream, stop, max_tokens,
         user=user
     )
     return response
+
+
+def is_valid_api_key(self, api_key):
+    openai.api_key = api_key
+    error_messages = []
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": "Hello, world!"}],
+            temperature=0.9, top_p=1, n=1, stream=False, max_tokens=5, presence_penalty=0, frequency_penalty=0,
+            logit_bias={}, user=""
+        )
+        print("API Key is valid. Model Response:")
+        print(response['choices'][0]['message']['content'])
+    except openai.OpenAIError as e:
+        print(f"Error: {e}")
+        error_messages.append(str(e))
+    return error_messages

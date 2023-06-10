@@ -6,13 +6,13 @@ class to handle document loading, keyword extraction, indexing, and saving/loadi
 includes a function for performing a semantic search test using the provided DocumentManager.
 
 Usage:
-    2. Execute the module to perform the document parsing and semantic search test.
-    3. The module will prompt for a document file to parse and load.
-    4. The parsed documents will be processed and indexed using the DocumentManager.
-    5. If manager state files exist, they will be loaded; otherwise, new documents and keywords will be processed.
-    6. The Faiss index will be built based on the processed documents.
-    7. Manager state files will be saved for future use.
-    8. Finally, a semantic search test will be performed, providing search results.
+    1. Execute the module to perform the document parsing and semantic search test.
+    2. The module will prompt for a document file to parse and load.
+    3. The parsed documents will be processed and indexed using the DocumentManager.
+    4. If manager state files exist, they will be loaded; otherwise, new documents and keywords will be processed.
+    5. The Faiss index will be built based on the processed documents.
+    6. Manager state files will be saved for future use.
+    7. Finally, a semantic search test will be performed, providing search results.
 
 Dependencies:
     - sys
@@ -35,6 +35,7 @@ from keyword_manager import KeywordManager
 import numpy as np
 from keyword_semantic_search_test import semantic_search_test
 
+
 # TODO: Understand commercial licensing requirements for resources used in this project
 # TODO: Maybe use Faiss w/o GPU support and w/o Conda
 # TODO: Analyze code with Pylint, Pydeps and mypy, radon or wily
@@ -49,6 +50,7 @@ from keyword_semantic_search_test import semantic_search_test
 # TODO: Optimize response validation
 # TODO: Develop ways to evaluate and understand the semantic search performance
 # TODO: Develop ways to understand the relative characteristics of the embeddings
+# TODO: Include headings in the chunk text
 # TODO: Page Numbers are not working. Would need to develop a new approach to parsing .docx files to get page numbers.
 # TODO: Tune nlist and nprobe for Faiss index
 # TODO: Add docstrings to the components
@@ -62,7 +64,7 @@ from keyword_semantic_search_test import semantic_search_test
 # TODO: Add a setup wizard that sets up the environment and configures the application
 # TODO: Remove the OPENAI API KEY from the code and use a config file instead
 # TODO: Semantic search review/maintenance interface
-# TODO: Maintenance interface
+# TODO: Document Management interface
 #  1. Add new documents
 #  2. Remove documents
 #  3. Backing up of data - Directory, primary/secondary backup versions
@@ -77,22 +79,29 @@ from keyword_semantic_search_test import semantic_search_test
 #   2. Allow the admin user to choose the level of error checking
 #   3. n_list, nprobe parameters for Faiss
 
+# TODO: Chatbot Interface Features
+#  1. Text entry box
+#  2. Send button
+#  3. Chat history window
+#  4. Scroll the chat history window
+#  1. Start new chat session - Drops chat history
+
 # TODO: Features of Chatbot:
 #  1. Control over chat session Start/Restart; End/Delete
-#  3. Chat session history
-#  14. Responsive to the user's mood/emotional state
-#  12. Ability to save/export the chat session to file and maybe email
-#  13. Personalization of the chatbot based on the user's name, role, conference, etc.
-#  4. Memory of previous conversations with User
-#  6. Access to previous chat sessions
-#  5. Chat session introduction
+#  2. History of Chat sessions
+#  3. Responsive to the user's mood/emotional state
+#  4. Ability to save/export the chat session to file and maybe email
+#  5. Personalization of the chatbot based on the user's name, role, conference, etc.
+#  6. Memory of previous conversations with User
+#  7. Access to previous chat sessions
+#  8. Chat session introduction
 #       - Alert User that they are talking to an AI chatbot
 #       - Alert User that the chatbot is trained on the User Manual
 #       - Tell user how to reach a human
-#  5. Alert User when the chatbot is not confident about the answer
-#  7. Access to other means of communicating with humans for support
-#  8. Ability to ask the User to provide feedback on individual answers
-#  9. Ability to ask the User to provide feedback on the chatbot session as a whole
+#  9. Alert User when the chatbot is not confident about the answer
+#  10. Access to other means of communicating with humans for support
+#  11. Ability to ask the User to provide feedback on individual answers
+#  12. Ability to ask the User to provide feedback on the chatbot session as a whole
 #  10. Scrolling chat window
 #  18. Jump to the top/bottom of the chat window
 #  11. Complex user input: Multiple sentences, paragraphs, carriage returns etc.
@@ -102,6 +111,7 @@ from keyword_semantic_search_test import semantic_search_test
 #  15. Give the user control over the size of the text in the chat window
 #  16. Streaming chat w typing indicator
 #  17. Answers should provide reference to the User Manual section/page number
+#  18. View current Chat AI Context (the chat history provided as part of the prompt to the AI)
 
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)

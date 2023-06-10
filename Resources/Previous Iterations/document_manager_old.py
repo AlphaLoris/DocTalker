@@ -31,7 +31,7 @@ Notes:
 """
 
 from typing import List, Tuple
-from src.docx_document_parser import DocxDocumentParser
+from utils.docx_document_parser import DocxDocumentParser
 from embeddings import create_keyword_objects_from_txt, generate_embedding, write_keywords_objects_to_file, \
     read_keyword_objects_from_file
 from faiss_index import FaissIndex
