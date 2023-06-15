@@ -12,7 +12,7 @@ save/load the manager state.
 
 Dependencies:
 - List, Tuple from typing
-- DocxDocumentParser from src.docx_document_parser
+- DocxDocumentParser from utils.docx_document_parser
 - generate_embedding
 - FaissIndex from faiss_index
 - np from numpy

@@ -2,8 +2,9 @@ from tkinter import messagebox
 from models.chat_model import ChatModel
 from views.chat_view import ChatView
 
-
-class ChatController:
+# TODO: Assign each chat session a unique ID and use it in API calls
+# TODO: Get user email address at the start of each chat session
+class ChatSessionController:
     def __init__(self, app_controller, parent):
         self.app_controller = app_controller
         self.model = ChatModel()

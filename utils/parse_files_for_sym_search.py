@@ -1,5 +1,5 @@
 """
-parse_files_for_sym_search.py Module
+parse_files_for_sym_search.py Module --This module exercises all the document parsing and semantic search functionality
 
 This module provides functionality for parsing and analyzing documents for semantic search. It uses the DocumentManager
 class to handle document loading, keyword extraction, indexing, and saving/loading of manager state. The module also

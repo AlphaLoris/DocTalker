@@ -55,7 +55,7 @@ class LLMView(tk.Frame):
         row2 = tk.Frame(self)
         row2.pack(fill=tk.X, padx=10, pady=3)
 
-        self.label_file_directory = tk.Label(row2, text="Files Directory Path:", font=bold_font)
+        self.label_file_directory = tk.Label(row2, text="Application Files Directory Path:", font=bold_font)
         self.label_file_directory.pack(side=tk.LEFT, padx=10)
 
         row3 = tk.Frame(self)
