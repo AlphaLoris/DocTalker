@@ -19,6 +19,5 @@ class PropertiesController:
         else:
             self.view.close_window()
 
-
     def get_property(self, property_name):
         return self.model.properties.get(property_name)

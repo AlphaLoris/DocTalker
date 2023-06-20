@@ -1,5 +1,7 @@
 import yaml
 import json
+import os
+
 
 # working_files_path (r'C:\Users\glenn\DocTalker\')
 #     doctalker_faiss_index
@@ -31,6 +33,9 @@ def assign_property(properties, property_name, value):
 
 class PropertiesModel:
     def __init__(self, filepath, context_windows):
+        self.working_files_path = None
+        self.context_length = None
+        self.model = None
         self.user = None
         self.logit_bias = None
         self.frequency_penalty = None
@@ -41,7 +46,6 @@ class PropertiesModel:
         self.stop = None
         self.top_p = None
         self.temperature = None
-        self.filepath = filepath
         self.properties = self.load_properties(filepath)
         self.context_windows = context_windows
 
@@ -76,9 +80,49 @@ class PropertiesModel:
             val = val[key]
         return val
 
+    def update_context_length(self, *args):
+        selected_model = self.model
+        print("Updating context window value for selected model: " + selected_model)
+        if selected_model in self.context_windows:
+            context_length = self.context_windows[selected_model]
+        else:
+            context_length = 0
+        self.context_length = context_length
+        print("Context window value updated to: " + str(context_length))
+        return context_length
+
+    def validate_and_create_path(self, working_files_path):
+        # Normalize the path and split it into its directories
+        path_parts = os.path.normpath(working_files_path).split(os.sep)
+
+        # Start from the root directory (or the drive on Windows)
+        current_path = path_parts[0] + os.sep if os.name == 'nt' else os.sep
+
+        # For each directory in the path...
+        for part in path_parts[1:]:
+            # Add the directory to the current path
+            current_path = os.path.join(current_path, part)
+
+            # If this directory doesn't exist...
+            if not os.path.exists(current_path):
+                try:
+                    # Try to create it
+                    os.mkdir(current_path)
+                except OSError as e:
+                    raise ValueError(f"Could not create directory '{current_path}': {e.strerror}")
+
     def set_properties(self, properties):
         errors = []
         for key, value in properties.items():
+            if key == "working_files_path":
+                try:
+                    self.validate_and_create_path(value)
+                    self.working_files_path = value
+                except ValueError as e:
+                    errors.append(str(e))
+            if key == "model":
+                self.model = value
+                self.context_length = self.update_context_length()
             if key == "temperature":
                 try:
                     self.temperature = float(value)
@@ -123,9 +167,12 @@ class PropertiesModel:
 
             if key == "max_tokens":
                 try:
-                    self.max_tokens = int(value)
-                    if self.max_tokens < 1 or self.max_tokens > self.context_windows:
-                        raise ValueError("Invalid max_tokens value")
+                    if value == '':
+                        self.max_tokens = None
+                    else:
+                        self.max_tokens = int(value)
+                        if self.max_tokens < 1 or self.max_tokens > self.context_windows:
+                            raise ValueError("Invalid max_tokens value")
                 except ValueError:
                     errors.append(
                         f"Invalid max_tokens value entered for {key}: {value}. "
@@ -174,37 +221,4 @@ class PropertiesModel:
                         f"Please ensure the user value does not exceed 256 characters.")
 
         if errors:
-            raise ValueError(errors)
-
-    """
-    # in your Model class
-    def set_properties(self, properties):
-        for key, value in properties.items():
-            if key == 'working_files_path':
-                self.set_working_files_path(value)
-            elif key == 'api_key':
-                self.set_api_key(value)
-            elif key == 'model':
-                self.set_model(value)
-            elif key == 'temperature':
-                self.set_temperature(value)
-            elif key == 'top_p':
-                self.set_top_p(value)
-            elif key == 'n':
-                self.set_n(value)
-            elif key == 'stream':
-                self.set_stream(value)
-            elif key == 'stop':
-                self.set_stop(value)
-            elif key == 'max_tokens':
-                self.set_max_tokens(value)
-            elif key == 'presence_penalty':
-                self.set_presence_penalty(value)
-            elif key == 'frequency_penalty':
-                self.set_frequency_penalty(value)
-            elif key == 'logit_bias':
-                self.set_logit_bias(value)
-            elif key == 'user':
-                self.set_user(value)
-            return
-    """
+            raise ValueError("\n".join(errors))

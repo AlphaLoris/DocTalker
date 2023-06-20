@@ -11,7 +11,7 @@ class ToolTip:
         self.widget.bind("<Enter>", self.show_tooltip)
         self.widget.bind("<Leave>", self.hide_tooltip)
 
-    def show_tooltip(self):
+    def show_tooltip(self, event=None):
         x, y, _, _ = self.widget.bbox("insert")
         x += self.widget.winfo_rootx() + 25
         y += self.widget.winfo_rooty() + 20
@@ -21,13 +21,14 @@ class ToolTip:
         label = tk.Label(self.tooltip_window, text=self.text, background="light grey", relief="solid", borderwidth=1)
         label.pack()
 
-    def hide_tooltip(self):
+    def hide_tooltip(self, event=None):
         if self.tooltip_window:
             self.tooltip_window.destroy()
             self.tooltip_window = None
 
 
 class PropertiesView:
+
     def __init__(self, controller, parent, context_windows):
         self.submit_button_frame = None
         self.controller = controller
@@ -78,6 +79,16 @@ class PropertiesView:
         self.parent = parent
         self.properties = {}
 
+    def on_model_change(self, *args):
+        selected_model = self.model_menu.get()
+        print(f"Selected model: {selected_model}")  # Debugging print
+        if selected_model != "Select Model":
+            self.model_parameters_frame.grid()
+            self.submit_button_frame.grid()
+        else:
+            self.model_parameters_frame.grid_forget()
+            self.submit_button_frame.grid_forget()
+
     def get_properties_from_user(self):
         self.top = tk.Toplevel(self.parent)
         self.top.title("Enter properties")
@@ -96,7 +107,7 @@ class PropertiesView:
         self.edit_button.grid(row=0, column=0, padx=5, pady=5)
         self.working_files_path_entry = tk.Entry(self.parameters_frame, width=100)
         self.working_files_path_entry.grid(row=0, column=1, padx=10, pady=5, columnspan=4, sticky="w")
-        self.label_working_files_path = tk.Label(self.parameters_frame, text="Working file path", width=15, anchor="w")
+        self.label_working_files_path = tk.Label(self.parameters_frame, text="Working files path", width=15, anchor="w")
         self.label_working_files_path.grid(row=0, column=3, padx=5, pady=5, sticky="w")
         working_files_path_tooltip_text = "The working file path is the path to the folder where the working files\n" \
                                           "will be stored.\n"
@@ -105,7 +116,7 @@ class PropertiesView:
         # API Key
         self.edit_button = tk.Button(self.parameters_frame, text="Edit API Key", width=15, command=self.edit_api_key)
         self.edit_button.grid(row=1, column=0, padx=5, pady=5)
-        self.api_key_entry = tk.Entry(self.parameters_frame, width=100)
+        self.api_key_entry = tk.Entry(self.parameters_frame, width=100, state='readonly')
         self.api_key_entry.grid(row=1, column=1, padx=10)
         self.api_key_entry.insert(0, self.api_key)
         self.label_api_key = tk.Label(self.parameters_frame, text="API Key", width=15, justify="left", anchor="w")
@@ -126,9 +137,10 @@ class PropertiesView:
         self.model_menu = ttk.Combobox(self.parameters_frame, textvariable=self.model_var)
         self.model_menu.set("Select Model")  # default value
         self.model_menu.grid(row=2, column=1, padx=10, pady=5, sticky="w", columnspan=1)
-
         self.model_parameters_frame = tk.Frame(self.top)
         self.model_parameters_frame.grid(row=3, column=0, rowspan=6, columnspan=4, sticky="w")
+        self.model_parameters_frame.grid_forget()
+        self.model_menu.bind("<<ComboboxSelected>>", self.on_model_change)
 
         # Temperature
         self.temperature_entry = tk.Entry(self.model_parameters_frame, width=15)
@@ -266,6 +278,7 @@ class PropertiesView:
 
         self.submit_button_frame = tk.Frame(self.top)
         self.submit_button_frame.grid(row=9, column=0, rowspan=6, columnspan=1, sticky="w")
+        self.submit_button_frame.grid_forget()
         self.submit_button = tk.Button(self.submit_button_frame, text="Submit", width=15,
                                        command=self.controller.handle_submit)
         self.submit_button.grid(row=9, column=0, padx=5, pady=5)
@@ -290,7 +303,7 @@ class PropertiesView:
         self.top.destroy()
 
     def show_error_message(self, errors):
-        error_message = "The following errors occurred:\n" + "\n".join(errors)
+        error_message = "The following errors occurred:\n" + errors
         messagebox.showerror("Invalid values", error_message)
 
     def refresh_model_list(self, context_windows, api_key):
@@ -305,8 +318,12 @@ class PropertiesView:
 
     def edit_api_key(self):
         new_api_key = get_api_key(self.top)
+        print("New API key: " + new_api_key)
         if new_api_key:
+            self.api_key_entry.config(state='normal')  # Temporarily make the field editable
             self.api_key_entry.delete(0, 'end')
             self.api_key_entry.insert(0, new_api_key)
+            self.api_key_entry.config(state='readonly')  # Make the field read-only again
             self.refresh_model_list(self.context_windows,
                                     new_api_key)  # Refresh the model list after updating the API key
+

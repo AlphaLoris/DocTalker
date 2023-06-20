@@ -170,6 +170,7 @@ def get_api_key(parent):
 
         # Validate the API key
         print("User entered API Key. Validating...")
+        print("API Key: ", api_key)
         errors = is_valid_api_key_model(api_key, test_model)
 
         if errors:
