@@ -13,7 +13,7 @@ def setup_logging():
 def main():
     setup_logging()
     app_controller = ApplicationController()
-    app_controller.view.mainloop()
+    app_controller.window.mainloop()
 
 
 if __name__ == "__main__":

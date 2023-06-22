@@ -1,14 +1,14 @@
 from tkinter import messagebox
-from models.chat_model import ChatModel
-from views.chat_view import ChatView
+from models.chat_session_model import ChatSessionModel
+from views.chat_session_view import ChatSessionView
 
 # TODO: Assign each chat session a unique ID and use it in API calls
 # TODO: Get user email address at the start of each chat session
 class ChatSessionController:
     def __init__(self, app_controller, parent):
         self.app_controller = app_controller
-        self.model = ChatModel()
-        self.view = ChatView(parent, self)
+        self.model = ChatSessionModel()
+        self.view = ChatSessionView(parent, self)
 
     def validate_chat_text(self, chat_text):
         if chat_text == "":

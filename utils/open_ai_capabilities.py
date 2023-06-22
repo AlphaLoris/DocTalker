@@ -138,6 +138,7 @@ def populate_model_list(context_window, api_key):
 # Checks to see which ChatCompletion Models the API key has access to
 def is_valid_api_key_model(api_key, test_model):
     openai.api_key = api_key
+    print("API key to be validated in is_valid_api_key_model: ", openai.api_key)
     error_messages = []
     print("Validating API key by calling OpenAI API")
     try:
@@ -171,6 +172,12 @@ def get_api_key(parent):
         # Validate the API key
         print("User entered API Key. Validating...")
         print("API Key: ", api_key)
+
+        # Check if the user cancelled the dialog or entered an empty string
+        if not api_key:
+            print("User cancelled or entered an empty API key.")
+            return None
+
         errors = is_valid_api_key_model(api_key, test_model)
 
         if errors:

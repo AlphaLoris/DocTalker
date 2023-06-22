@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from utils.open_ai_capabilities import populate_model_list, get_api_key
+from utils.open_ai_capabilities import populate_model_list, get_api_key, is_valid_api_key_model
 
 
 class ToolTip:
@@ -30,8 +30,11 @@ class ToolTip:
 class PropertiesView:
 
     def __init__(self, controller, parent, context_windows):
-        self.submit_button_frame = None
         self.controller = controller
+        self.parent = parent
+        self.context_windows = context_windows
+        self.properties = {}
+        self.submit_button_frame = None
         self.submit_button = None
         self.model_parameters_frame = None
         self.top = None
@@ -69,15 +72,12 @@ class PropertiesView:
         self.edit_button = None
         self.top_p_entry = None
         self.api_key = ""
-        self.context_windows = context_windows
         self.api_key_entry = None
         self.refresh_button = None
         self.model_menu = None
         self.model_var = None
         self.token_count = None
         self.parameters_frame = None
-        self.parent = parent
-        self.properties = {}
 
     def on_model_change(self, *args):
         selected_model = self.model_menu.get()
@@ -110,11 +110,12 @@ class PropertiesView:
         self.label_working_files_path = tk.Label(self.parameters_frame, text="Working files path", width=15, anchor="w")
         self.label_working_files_path.grid(row=0, column=3, padx=5, pady=5, sticky="w")
         working_files_path_tooltip_text = "The working file path is the path to the folder where the working files\n" \
-                                          "will be stored.\n"
+                                          "will be stored."
         ToolTip(self.label_working_files_path, working_files_path_tooltip_text)
 
         # API Key
         self.edit_button = tk.Button(self.parameters_frame, text="Edit API Key", width=15, command=self.edit_api_key)
+        print("API Key entered in properties_view: " + self.api_key)
         self.edit_button.grid(row=1, column=0, padx=5, pady=5)
         self.api_key_entry = tk.Entry(self.parameters_frame, width=100, state='readonly')
         self.api_key_entry.grid(row=1, column=1, padx=10)
@@ -307,6 +308,9 @@ class PropertiesView:
         messagebox.showerror("Invalid values", error_message)
 
     def refresh_model_list(self, context_windows, api_key):
+        # TODO: Retrieve the API key from the properties model
+        api_key = self.controller.get_property('api_key')
+        print("API key retrieved from properties model for use in refreshing model list: ", api_key)
         model_list = populate_model_list(context_windows, api_key)
         print("Updating model list: " + str(model_list))
         self.model_menu['values'] = ["Select Model"] + model_list
@@ -318,12 +322,29 @@ class PropertiesView:
 
     def edit_api_key(self):
         new_api_key = get_api_key(self.top)
-        print("New API key: " + new_api_key)
-        if new_api_key:
-            self.api_key_entry.config(state='normal')  # Temporarily make the field editable
-            self.api_key_entry.delete(0, 'end')
-            self.api_key_entry.insert(0, new_api_key)
-            self.api_key_entry.config(state='readonly')  # Make the field read-only again
-            self.refresh_model_list(self.context_windows,
-                                    new_api_key)  # Refresh the model list after updating the API key
+
+        # Check if the user has cancelled the input (assuming get_api_key returns None or an empty string in that case)
+        if not new_api_key:
+            # Optionally, you can log or show a message that the user cancelled the input.
+            print("User cancelled the input.")
+            return  # Exit the method early as there's nothing to process.
+
+        print("New API key passed to edit_api_key in properties_view: ", new_api_key)
+
+        self.api_key_entry.config(state='normal')  # Temporarily make the field editable
+        self.api_key_entry.delete(0, 'end')
+        self.api_key_entry.insert(0, new_api_key)
+        self.api_key_entry.config(state='readonly')  # Make the field read-only again
+
+        # Validate API key
+        test_model = "gpt-3.5-turbo"
+        try:
+            is_valid_api_key_model(new_api_key, test_model)
+        except Exception as e:
+            messagebox.showerror("Invalid API key", "The API key you entered is invalid. Please try again.")
+        else:
+            # Only refresh the model list if the API key is valid
+            self.controller.set_property('api_key', new_api_key)
+            self.refresh_model_list(self.context_windows, new_api_key)
+
 

@@ -33,6 +33,7 @@ def assign_property(properties, property_name, value):
 
 class PropertiesModel:
     def __init__(self, filepath, context_windows):
+        self.api_key = None
         self.working_files_path = None
         self.context_length = None
         self.model = None
@@ -49,7 +50,6 @@ class PropertiesModel:
         self.properties = self.load_properties(filepath)
         self.context_windows = context_windows
 
-        # TODO:  Determine and set the context window for the selected model
 
     def load_properties(self, filepath):
         try:
@@ -114,8 +114,14 @@ class PropertiesModel:
     def set_properties(self, properties):
         errors = []
         for key, value in properties.items():
+            if key == "api_key":
+                self.api_key = value
+                self.properties['api_key'] = value
+                print("API Key set to: " + value)
             if key == "working_files_path":
                 try:
+                    if not value.strip():  # Check if the string is empty or only contains whitespaces
+                        raise ValueError("Working files path cannot be empty")
                     self.validate_and_create_path(value)
                     self.working_files_path = value
                 except ValueError as e:

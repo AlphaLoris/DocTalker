@@ -1,19 +1,18 @@
 import tkinter as tk
 
 
-class ChatView(tk.Frame):
+class ChatSessionView:
     def __init__(self, parent, controller):
-        super().__init__(parent)
         self.controller = controller
 
-        self.configure(bg="white")  # Set the background color to white for better visibility
+        # Create a new Toplevel window for the chat session
+        self.window = tk.Toplevel(parent)
 
-        # Add a simple label to the PromptsTab
-        label = tk.Label(self, text="List of Prompts", bg="white")
-        label.grid(pady=10, sticky='nsew')
+        # Optionally set the title of the new window
+        self.window.title("Chat Session")
 
         # Create a Frame to hold Chat History Listbox and Scrollbar
-        chat_history_frame = tk.Frame(self, bg="white")
+        chat_history_frame = tk.Frame(self.window, bg="white")
         chat_history_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
 
         # Add an empty Listbox to the frame
@@ -31,7 +30,7 @@ class ChatView(tk.Frame):
 
         # Text Entry Text Box
         # Create a Frame to hold Chat Text Entry Listbox and Scrollbar
-        chat_text_entry_frame = tk.Frame(self, bg="white")
+        chat_text_entry_frame = tk.Frame(self.window, bg="white")
         chat_text_entry_frame.grid(row=2, column=0, sticky='nsew', padx=10, pady=10)
 
         # Create a Text widget in the frame
@@ -48,13 +47,15 @@ class ChatView(tk.Frame):
         # Pack the Text widget into the frame
         self.chat_text_entry_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
-        self.rowconfigure(0, weight=0)  # label row (weight = 0 means it won't expand)
-        self.rowconfigure(1, weight=2)  # chat_history_frame row
-        self.rowconfigure(2, weight=1)  # chat_text_entry_frame row
+        # Configure rows and columns for resizing
+        self.window.rowconfigure(0, weight=0)  # label row (weight = 0 means it won't expand)
+        self.window.rowconfigure(1, weight=2)  # chat_history_frame row
+        self.window.rowconfigure(2, weight=1)  # chat_text_entry_frame row
+        self.window.columnconfigure(0, weight=1)  # all content in one column
 
-        self.columnconfigure(0, weight=1)  # all content in one column
-
-        submit_button_frame = tk.Frame(self, bg="white")
+        # Submit button
+        submit_button_frame = tk.Frame(self.window, bg="white")
         submit_button_frame.grid(row=3, column=0, sticky='nsew', padx=10, pady=10)
         submit_button = tk.Button(submit_button_frame, text="Submit", bg="white")
         submit_button.pack(side=tk.RIGHT)
+
