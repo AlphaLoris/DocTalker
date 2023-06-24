@@ -186,24 +186,32 @@ class PropertiesModel:
                         f" {self.context_windows}.")
 
             if key == "presence_penalty":
-                try:
-                    self.presence_penalty = float(value)
-                    if self.presence_penalty < -2.0 or self.presence_penalty > 2.0:
-                        raise ValueError("Invalid presence_penalty value")
-                except ValueError:
-                    errors.append(
-                        f"Invalid presence_penalty value entered for {key}: {value}. "
-                        f"Please set presence_penalty to a value in the range -2 to 2.")
+                if value == '':
+                    # Assign a special value or process as needed
+                    self.presence_penalty = None
+                else:
+                    try:
+                        self.presence_penalty = float(value)
+                        if self.presence_penalty < -2.0 or self.presence_penalty > 2.0:
+                            raise ValueError("Invalid presence_penalty value")
+                    except ValueError:
+                        errors.append(
+                            f"Invalid presence_penalty value entered for {key}: {value}. "
+                            f"Please set presence_penalty to a value in the range -2 to 2.")
 
             if key == "frequency_penalty":
-                try:
-                    self.frequency_penalty = float(value)
-                    if self.frequency_penalty < -2.0 or self.frequency_penalty > 2.0:
-                        raise ValueError("Invalid frequency_penalty value")
-                except ValueError:
-                    errors.append(
-                        f"Invalid frequency_penalty value entered for {key}: {value}. "
-                        f"Please set frequency_penalty to a value in the range -2 to 2.")
+                if value == '':
+                    # Assign a special value or process as needed
+                    self.frequency_penalty = None
+                else:
+                    try:
+                        self.frequency_penalty = float(value)
+                        if self.frequency_penalty < -2.0 or self.frequency_penalty > 2.0:
+                            raise ValueError("Invalid frequency_penalty value")
+                    except ValueError:
+                        errors.append(
+                            f"Invalid frequency_penalty value entered for {key}: {value}. "
+                            f"Please set frequency_penalty to a value in the range -2 to 2.")
 
             if key == "logit_bias":
                 try:

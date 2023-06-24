@@ -14,8 +14,8 @@ langchain_helpers.text_splitter. It gives you control over chunk size and overla
 string it should split on.
 """
 
-# TODO: figure out a way to leverage the chunk size and overlap controls and maybe the splitting methodology of this
-#  script along with text_block_extractor.py to get the best of both worlds.
+    # TODO: figure out a way to leverage the chunk size and overlap controls and maybe the splitting methodology of this
+    #  script along with text_block_extractor.py to get the best of both worlds.
 
 # Data Ingestion Class
 class DataIngestion:

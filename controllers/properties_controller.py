@@ -11,6 +11,7 @@ class PropertiesController:
         self.app_controller = application_controller
 
         if not self.model.properties.get('working_files_path') or not self.model.properties.get('api_key'):
+            self.view = PropertiesView(self, parent, context_windows)  # Pass the parent here
             self.view.get_properties_from_user()
 
     def handle_submit(self):

@@ -1,5 +1,9 @@
 import tkinter as tk
 
+# TODO: track cost of each chat session
+# TODO: allow the admin to set a budget for each chat session
+# TODO: track number of queries in each chat session
+# TODO: track duration of each chat session
 
 class ChatSessionsView(tk.Frame):
     def __init__(self, parent, controller):
@@ -33,13 +37,3 @@ class ChatSessionsView(tk.Frame):
         self.chat_sessions_listbox = tk.Listbox(self, bg="white")
         self.chat_sessions_listbox.grid(row=2, column=0, columnspan=12, rowspan=9, padx=10, pady=10, sticky='nsew')
 
-        """
-        # Configure the column and row in which the Listbox is located
-        self.columnconfigure(0, weight=1)  # assuming the Listbox is in column 0
-        for i in range(3, 12):  # configuring rows 3 to 11 for Listbox spanning multiple rows
-            self.rowconfigure(i, weight=1)
-        
-        # Add an empty Listbox to the ChatSessionsTab
-        self.chat_sessions_listbox = tk.Listbox(self, bg="white")
-        self.chat_sessions_listbox.grid(row=2, column=0, columnspan=12, rowspan=9, padx=10, pady=10, sticky='nsew')
-        """

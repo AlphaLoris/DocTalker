@@ -89,9 +89,25 @@ class PropertiesView:
             self.model_parameters_frame.grid_forget()
             self.submit_button_frame.grid_forget()
 
+    def center_window(self, window, width=300, height=200):
+        # Gets the requested windows width and height
+        window_width = width
+        window_height = height
+
+        # Gets both half the screen width/height and window width/height
+        position_right = int(window.winfo_screenwidth() / 2 - window_width / 2)
+        position_down = int(window.winfo_screenheight() / 2 - window_height / 2)
+
+        # Positions the window in the center of the page.
+        window.geometry("+{}+{}".format(position_right, position_down))
+
     def get_properties_from_user(self):
         self.top = tk.Toplevel(self.parent)
         self.top.title("Enter properties")
+        self.top.grab_set()  # Make the properties window modal
+        self.center_window(self.top, width=400, height=300)  # You can adjust the width and height
+
+
         # Parameters frame
         self.parameters_frame = tk.Frame(self.top)
         self.parameters_frame.grid(row=0, column=0, rowspan=3, columnspan=6, sticky="w")

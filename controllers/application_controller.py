@@ -9,6 +9,11 @@ from controllers.properties_controller import PropertiesController
 
 class ApplicationController:
     def __init__(self):
+        # Create a root window but keep it hidden
+        self.root = tk.Tk()
+        self.root.withdraw()
+
+        self.window = None
         self.view = None
         self.documents_controller = None
         self.chat_sessions_controller = None
@@ -16,6 +21,7 @@ class ApplicationController:
         self.notebook = None
         logger = logging.getLogger(__name__)
         logger.info("Initializing Application Controller and creating main window.")
+
         context_windows = {
             "gpt-4": 8192,
             "gpt-4-0613": 8192,
@@ -29,15 +35,17 @@ class ApplicationController:
             "gpt-3.5-turbo-0301": 4096
         }
 
+        self.properties_controller = PropertiesController(self, self.root, r'C:\Users\glenn\DocTalker\properties.yaml',
+                                                          context_windows)
+        # Start the Tkinter main loop
+        self.root.mainloop()
+
+    def continue_initialization(self):
         # Main window
         self.window = tk.Tk()
         self.window.title("DocTalker LLM AI Chatbot")
         self.window.geometry("1000x770")
 
-        self.properties_controller = PropertiesController(self, self.window, r'C:\Users\glenn\DocTalker\properties.yaml',
-                                                          context_windows)
-
-    def continue_initialization(self):
         # Notebook
         self.notebook = ttk.Notebook(self.window)
         self.notebook.pack(fill=tk.BOTH, expand=1)
@@ -53,5 +61,6 @@ class ApplicationController:
 
         self.view = self.window
 
-
+        # Start the main event loop of Tkinter
+        self.window.mainloop()
 

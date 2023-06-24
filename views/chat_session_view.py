@@ -12,11 +12,11 @@ class ChatSessionView:
         self.window.title("Chat Session")
 
         # Create a Frame to hold Chat History Listbox and Scrollbar
-        chat_history_frame = tk.Frame(self.window, bg="white")
+        chat_history_frame = tk.Frame(self.window, bg="blue")
         chat_history_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
 
         # Add an empty Listbox to the frame
-        self.chat_history_listbox = tk.Listbox(chat_history_frame, bg="white")
+        self.chat_history_listbox = tk.Listbox(chat_history_frame, bg="blue")
 
         # Add Scrollbar to the frame
         chat_history_scrollbar = tk.Scrollbar(chat_history_frame)
@@ -30,11 +30,11 @@ class ChatSessionView:
 
         # Text Entry Text Box
         # Create a Frame to hold Chat Text Entry Listbox and Scrollbar
-        chat_text_entry_frame = tk.Frame(self.window, bg="white")
+        chat_text_entry_frame = tk.Frame(self.window, bg="green")
         chat_text_entry_frame.grid(row=2, column=0, sticky='nsew', padx=10, pady=10)
 
         # Create a Text widget in the frame
-        self.chat_text_entry_text = tk.Text(chat_text_entry_frame, height=3, bg="white")
+        self.chat_text_entry_text = tk.Text(chat_text_entry_frame, height=3, bg="green")
 
         # Add Scrollbar to the frame
         chat_text_entry_scrollbar = tk.Scrollbar(chat_text_entry_frame)
@@ -54,8 +54,12 @@ class ChatSessionView:
         self.window.columnconfigure(0, weight=1)  # all content in one column
 
         # Submit button
-        submit_button_frame = tk.Frame(self.window, bg="white")
+        submit_button_frame = tk.Frame(self.window)
         submit_button_frame.grid(row=3, column=0, sticky='nsew', padx=10, pady=10)
-        submit_button = tk.Button(submit_button_frame, text="Submit", bg="white")
+        submit_button = tk.Button(submit_button_frame, text="Submit", bg="white",
+                                  command=self.controller.submit_chat_text)
         submit_button.pack(side=tk.RIGHT)
 
+        # New session button
+        new_session_button = tk.Button(submit_button_frame, text="New session", bg="white")
+        new_session_button.pack(side=tk.LEFT)
