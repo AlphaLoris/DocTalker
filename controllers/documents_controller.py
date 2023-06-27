@@ -3,10 +3,10 @@ from views.documents_view import DocumentsView
 
 
 class DocumentsController:
-    def __init__(self, app_controller, parent):
+    def __init__(self, app_controller, documents_model, documents_view):
         self.app_controller = app_controller
-        self.model = DocumentsModel()
-        self.view = DocumentsView(parent, self)
+        self.model = documents_model
+        self.view = documents_view
 
     def browse_docs_directory(self):
         """

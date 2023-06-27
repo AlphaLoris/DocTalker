@@ -166,6 +166,7 @@ def notify_invalid_key(errors, api_key):
 
 def get_api_key(parent):
     while True:
+        print("Prompting user for API Key in get_api_key")
         api_key = prompt_for_api_key(parent)
         test_model = "gpt-3.5-turbo"
 

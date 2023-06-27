@@ -2,8 +2,9 @@ import tkinter as tk
 
 
 class ChatSessionView:
-    def __init__(self, parent, controller):
-        self.controller = controller
+    def __init__(self, model, parent):
+        self.controller = None
+        self.model = model
 
         # Create a new Toplevel window for the chat session
         self.window = tk.Toplevel(parent)
@@ -12,29 +13,29 @@ class ChatSessionView:
         self.window.title("Chat Session")
 
         # Create a Frame to hold Chat History Listbox and Scrollbar
-        chat_history_frame = tk.Frame(self.window, bg="blue")
+        chat_history_frame = tk.Frame(self.window, bg="white")
         chat_history_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
 
         # Add an empty Listbox to the frame
-        self.chat_history_listbox = tk.Listbox(chat_history_frame, bg="blue")
+        self.chat_history_textbox = tk.Text(chat_history_frame, wrap=tk.WORD, bg="white")
 
         # Add Scrollbar to the frame
         chat_history_scrollbar = tk.Scrollbar(chat_history_frame)
         chat_history_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Link scrollbar to listbox
-        self.chat_history_listbox.config(yscrollcommand=chat_history_scrollbar.set)
-        chat_history_scrollbar.config(command=self.chat_history_listbox.yview)
+        self.chat_history_textbox.config(yscrollcommand=chat_history_scrollbar.set)
+        chat_history_scrollbar.config(command=self.chat_history_textbox.yview)
 
-        self.chat_history_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        self.chat_history_textbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         # Text Entry Text Box
         # Create a Frame to hold Chat Text Entry Listbox and Scrollbar
-        chat_text_entry_frame = tk.Frame(self.window, bg="green")
+        chat_text_entry_frame = tk.Frame(self.window, bg="white")
         chat_text_entry_frame.grid(row=2, column=0, sticky='nsew', padx=10, pady=10)
 
         # Create a Text widget in the frame
-        self.chat_text_entry_text = tk.Text(chat_text_entry_frame, height=3, bg="green")
+        self.chat_text_entry_text = tk.Text(chat_text_entry_frame, height=3, bg="white")
 
         # Add Scrollbar to the frame
         chat_text_entry_scrollbar = tk.Scrollbar(chat_text_entry_frame)
@@ -57,9 +58,22 @@ class ChatSessionView:
         submit_button_frame = tk.Frame(self.window)
         submit_button_frame.grid(row=3, column=0, sticky='nsew', padx=10, pady=10)
         submit_button = tk.Button(submit_button_frame, text="Submit", bg="white",
-                                  command=self.controller.submit_chat_text)
+                                  command=self.on_submit)
         submit_button.pack(side=tk.RIGHT)
 
         # New session button
         new_session_button = tk.Button(submit_button_frame, text="New session", bg="white")
         new_session_button.pack(side=tk.LEFT)
+
+    def set_controller(self, controller):
+        self.controller = controller
+
+    def on_submit(self):
+        # Get the text from the Text widget
+        chat_text = self.chat_text_entry_text.get("1.0", tk.END)
+        # Clear the Text widget
+        self.chat_text_entry_text.delete("1.0", tk.END)
+        # Add the text to the Listbox
+        self.chat_history_textbox.insert(tk.END, chat_text)
+        self.controller.submit_chat_text(chat_text)
+

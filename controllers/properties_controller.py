@@ -1,23 +1,27 @@
 from models.properties_model import PropertiesModel
 from views.properties_view import PropertiesView
-
 import logging
 
 
 class PropertiesController:
-    def __init__(self, application_controller, parent, filepath, context_windows):
-        self.model = PropertiesModel(filepath, context_windows)
-        self.view = PropertiesView(self, parent, context_windows)
+    def __init__(self, application_controller, properties_model, properties_view):
         self.app_controller = application_controller
-
-        if not self.model.properties.get('working_files_path') or not self.model.properties.get('api_key'):
-            self.view = PropertiesView(self, parent, context_windows)  # Pass the parent here
+        self.model = properties_model
+        self.view = properties_view
+        # Updated to use attribute access instead of dictionary access
+        if not self.model.working_files_path or not self.model.api_key:
+            print("Properties not set; getting properties from user... ")
+            properties_view.set_properties_controller(self)
             self.view.get_properties_from_user()
+        print("Properties set; continuing initialization... ")
+        self.app_controller.continue_initialization()
 
     def handle_submit(self):
         properties = self.view.get_properties()
         try:
             self.model.set_properties(properties)
+            # Persist the properties now that they are set
+            self.model.persist_properties()
         except ValueError as e:
             self.view.show_error_message(str(e))
         except Exception as e:
@@ -28,7 +32,8 @@ class PropertiesController:
 
     def get_property(self, property_name):
         logging.info("Getting property: %s", property_name)
-        property_value = self.model.properties.get(property_name)
+        # Updated to use attribute access instead of dictionary access
+        property_value = getattr(self.model, property_name, None)
         logging.info("Property value: %s", property_value)
         return property_value
 
@@ -36,13 +41,11 @@ class PropertiesController:
         print("Setting property:", property_name, "to", value)
         try:
             # Using set_properties method for validation
-            self.model.set_properties({property_name: value}) # Wrapping the property_name and value in a dictionary
+            self.model.set_properties({property_name: value})  # Wrapping the property_name and value in a dictionary
         except ValueError as e:
             print("Error setting property:", str(e))
         else:
             # If successful, print the updated value
-            print("Property value:", self.model.extract_property(self.model.properties, property_name)) # Changed this line to use extract_property method
-            return self.model.extract_property(self.model.properties, property_name) # Changed this line to use extract_property method
-
-
-
+            updated_value = getattr(self.model, property_name, None)
+            print("Property value:", updated_value)
+            return updated_value

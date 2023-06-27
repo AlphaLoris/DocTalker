@@ -2,22 +2,29 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 from controllers.chat_sessions_controller import ChatSessionsController
-from controllers.llm_controller import LLMController
 from controllers.documents_controller import DocumentsController
 from controllers.properties_controller import PropertiesController
+from models.documents_model import DocumentsModel
+from models.chat_sessions_model import ChatSessionsModel
+from models.properties_model import PropertiesModel
+from views.documents_view import DocumentsView
+from views.chat_sessions_view import ChatSessionsView
+from views.properties_view import PropertiesView
 
 
 class ApplicationController:
     def __init__(self):
         # Create a root window but keep it hidden
+        self.chat_sessions_view = None
+        self.documents_view = None
         self.root = tk.Tk()
         self.root.withdraw()
-
         self.window = None
         self.view = None
         self.documents_controller = None
         self.chat_sessions_controller = None
-        self.llm_controller = None
+        self.documents_model = DocumentsModel()
+        self.chat_sessions_model = ChatSessionsModel()
         self.notebook = None
         logger = logging.getLogger(__name__)
         logger.info("Initializing Application Controller and creating main window.")
@@ -34,9 +41,11 @@ class ApplicationController:
             "gpt-3.5-turbo-0613": 4096,
             "gpt-3.5-turbo-0301": 4096
         }
-
-        self.properties_controller = PropertiesController(self, self.root, r'C:\Users\glenn\DocTalker\properties.yaml',
-                                                          context_windows)
+        properties_model = PropertiesModel(r'C:\Users\glenn\DocTalker\properties.yaml', context_windows)
+        properties_view = PropertiesView(self, self.root, context_windows)
+        self.properties_controller = PropertiesController(self, properties_model, properties_view)
+        properties_view.set_properties_controller(self.properties_controller)
+        print("Properties controller initialized. Starting main loop.")
         # Start the Tkinter main loop
         self.root.mainloop()
 
@@ -50,13 +59,15 @@ class ApplicationController:
         self.notebook = ttk.Notebook(self.window)
         self.notebook.pack(fill=tk.BOTH, expand=1)
 
-        self.llm_controller = LLMController(self, self.notebook)
-        self.chat_sessions_controller = ChatSessionsController(self, self.notebook)
-        self.documents_controller = DocumentsController(self, self.notebook)
+        self.chat_sessions_view = ChatSessionsView(self.notebook)
+        self.chat_sessions_controller = ChatSessionsController(self, self.chat_sessions_model, self.chat_sessions_view)
+        self.chat_sessions_view.set_controller(self.chat_sessions_controller)
+        self.documents_view = DocumentsView(self.notebook)
+        self.documents_controller = DocumentsController(self, self.documents_model, self.documents_view)
+        self.documents_view.set_controller(self.documents_controller)
 
         # Adding tabs
         self.notebook.add(self.chat_sessions_controller.view, text="Chat Sessions")
-        self.notebook.add(self.llm_controller.view, text="LLM")
         self.notebook.add(self.documents_controller.view, text="Documents")
 
         self.view = self.window

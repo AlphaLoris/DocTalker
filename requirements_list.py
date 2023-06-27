@@ -101,6 +101,7 @@
 #         - Ability to ask the User to provide feedback on the chatbot session as a whole
 #    - Chat Session
 #         - Chat window
+#              - Support for multiple languages
 #              - Complex user input: Multiple sentences, paragraphs, carriage returns etc.
 #              - Scrollable Window
 #              - Expandable Window
@@ -108,14 +109,39 @@
 #              - Select text in chat window
 #              - Cut selected text from chat window
 #              - Copy selected text from chat window
+#              - Ability to edit the text in the chat window
+#              - Ability to delete the text in the chat window
 #              - Visual differentiation of chatbot responses from User input
 #              - User control over the size of the text in the chat window
 #              - Streaming chat w typing indicator
+#              - Markdown or formatting options: Enables users to format text (bold, italic, etc.) for clarity.
+#              - Emojis and Stickers: Allows users to express emotions through visual elements.
+#              - Ability to handle links
+#              - Ability to add images
+#              - Ability to add code blocks w preserved formatting
+#              - Ability to add lists and outlines
+#              - Support for quoting previous messages
+#              - Ability to add special characters
+#              - Ability to add hashtags
+#              - Editing: Allow users to edit their messages after sending (updating the recipient).
+#              - Deleting: Allow users to delete their messages after sending (updating the recipient).
+#              - Message status indicators (e.g., sent, delivered, read)
+#              - Auto-correction and suggestions: Helps users in correcting typos and facilitates faster typing.
+#              - Auto-complete: Helps users in completing the word they are typing based on the first few letters that
+#                   they have typed.
+#              - Ability to add attachments
+#              - Ability to add tables
+#              - Ability to add videos
+#              - Ability to add audio
+#              - Ability to add horizontal rules
+#              - Ability to add mentions
+#              - Command shortcuts: For example, users could type /help to quickly access a help menu.
 #         - Chat history window
 #              - Scroll the chat history window
 #              - Alert User when the chatbot is not confident about the answer
 #              - Ability to ask the User to provide feedback on individual answers
 #              - Answers should provide reference to the User Manual section/page number
+#              - Search message history
 #         - Submit button
 #         - End chat button
 #         - Jump to the top/bottom of the chat window

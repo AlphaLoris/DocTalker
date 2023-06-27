@@ -29,8 +29,10 @@ class ToolTip:
 
 class PropertiesView:
 
-    def __init__(self, controller, parent, context_windows):
-        self.controller = controller
+    def __init__(self, application_controller, parent, context_windows):
+        self.browse_button = None
+        self.properties_controller = None
+        self.application_controller = application_controller
         self.parent = parent
         self.context_windows = context_windows
         self.properties = {}
@@ -69,7 +71,7 @@ class PropertiesView:
         self.temperature_entry = None
         self.label_api_key = None
         self.api_key_label = None
-        self.edit_button = None
+        self.edit_api_key_button = None
         self.top_p_entry = None
         self.api_key = ""
         self.api_key_entry = None
@@ -81,11 +83,15 @@ class PropertiesView:
 
     def on_model_change(self, *args):
         selected_model = self.model_menu.get()
-        print(f"Selected model: {selected_model}")  # Debugging print
+        print(f"Selected model: {selected_model}")
         if selected_model != "Select Model":
+            print("Model has been selected. Displaying model parameters.")
             self.model_parameters_frame.grid()
             self.submit_button_frame.grid()
+            self.model_parameters_frame.update_idletasks()
+            self.submit_button_frame.update_idletasks()
         else:
+            print("Model has not been selected. Hiding model parameters.")
             self.model_parameters_frame.grid_forget()
             self.submit_button_frame.grid_forget()
 
@@ -107,7 +113,6 @@ class PropertiesView:
         self.top.grab_set()  # Make the properties window modal
         self.center_window(self.top, width=400, height=300)  # You can adjust the width and height
 
-
         # Parameters frame
         self.parameters_frame = tk.Frame(self.top)
         self.parameters_frame.grid(row=0, column=0, rowspan=3, columnspan=6, sticky="w")
@@ -119,8 +124,8 @@ class PropertiesView:
         self.parameters_frame.columnconfigure(5, weight=1)
 
         # working_files_path
-        self.edit_button = tk.Button(self.parameters_frame, text="Browse", width=15, command=self.get_files_directory)
-        self.edit_button.grid(row=0, column=0, padx=5, pady=5)
+        self.browse_button = tk.Button(self.parameters_frame, text="Browse", width=15, command=self.get_files_directory)
+        self.browse_button.grid(row=0, column=0, padx=5, pady=5)
         self.working_files_path_entry = tk.Entry(self.parameters_frame, width=100)
         self.working_files_path_entry.grid(row=0, column=1, padx=10, pady=5, columnspan=4, sticky="w")
         self.label_working_files_path = tk.Label(self.parameters_frame, text="Working files path", width=15, anchor="w")
@@ -130,9 +135,10 @@ class PropertiesView:
         ToolTip(self.label_working_files_path, working_files_path_tooltip_text)
 
         # API Key
-        self.edit_button = tk.Button(self.parameters_frame, text="Edit API Key", width=15, command=self.edit_api_key)
+        self.edit_api_key_button = tk.Button(self.parameters_frame, text="Edit API Key", width=15,
+                                             command=self.edit_api_key)
         print("API Key entered in properties_view: " + self.api_key)
-        self.edit_button.grid(row=1, column=0, padx=5, pady=5)
+        self.edit_api_key_button.grid(row=1, column=0, padx=5, pady=5)
         self.api_key_entry = tk.Entry(self.parameters_frame, width=100, state='readonly')
         self.api_key_entry.grid(row=1, column=1, padx=10)
         self.api_key_entry.insert(0, self.api_key)
@@ -148,7 +154,7 @@ class PropertiesView:
         # Model
         self.model_var = tk.StringVar(self.parameters_frame)
         self.refresh_button = tk.Button(self.parameters_frame, text="Refresh Models", width=12,
-                                        command=lambda: self.refresh_model_list(self.context_windows, self.api_key))
+                                        command=lambda: self.refresh_model_list(self.context_windows))
         self.refresh_button.grid(row=2, column=0, padx=10, pady=5, sticky="w")
         self.model_var.set("Select Model")
         self.model_menu = ttk.Combobox(self.parameters_frame, textvariable=self.model_var)
@@ -244,8 +250,8 @@ class PropertiesView:
         self.presence_penalty_entry = tk.Entry(self.model_parameters_frame, width=15)
         self.presence_penalty_entry.grid(row=3, column=3, padx=5, pady=5, sticky="nswe")
         self.presence_penalty_entry.insert(0, "")
-        self.presence_penalty_label = tk.Label(self.model_parameters_frame, text="presence_penalty (-2.0 to 2.0)", width=24,
-                                               anchor="w")
+        self.presence_penalty_label = tk.Label(self.model_parameters_frame, text="presence_penalty (-2.0 to 2.0)",
+                                               width=24, anchor="w")
         self.presence_penalty_label.grid(row=3, column=4, padx=5, pady=5, sticky="w")
         presence_penalty_label_tooltip_text = "Presence_penalty controls the model's likelihood of using words that\n" \
                                               "already occur in its output again. Positive values penalize new tokens \n" \
@@ -257,8 +263,8 @@ class PropertiesView:
         self.frequency_penalty_entry = tk.Entry(self.model_parameters_frame, width=15)
         self.frequency_penalty_entry.grid(row=4, column=3, padx=5, pady=5, sticky="nswe")
         self.frequency_penalty_entry.insert(0, "")
-        self.frequency_penalty_label = tk.Label(self.model_parameters_frame, text="frequency_penalty (-2.0 to 2.0)", width=24,
-                                                anchor="w")
+        self.frequency_penalty_label = tk.Label(self.model_parameters_frame, text="frequency_penalty (-2.0 to 2.0)",
+                                                width=24, anchor="w")
         self.frequency_penalty_label.grid(row=4, column=4, padx=5, pady=5, sticky="w")
         frequency_penalty_label_tooltip_text = "Frequency_penalty is a number between -2.0 and 2.0 that defaults to 0.\n " \
                                                "Positive values penalize new tokens based on their existing frequency in\n" \
@@ -297,8 +303,21 @@ class PropertiesView:
         self.submit_button_frame.grid(row=9, column=0, rowspan=6, columnspan=1, sticky="w")
         self.submit_button_frame.grid_forget()
         self.submit_button = tk.Button(self.submit_button_frame, text="Submit", width=15,
-                                       command=self.controller.handle_submit)
-        self.submit_button.grid(row=9, column=0, padx=5, pady=5)
+                                       command=self.properties_controller.handle_submit)
+        self.submit_button.grid(row=9, column=0, padx=5, pady=5, sticky="w")
+
+    def set_properties_controller(self, properties_controller):
+        self.properties_controller = properties_controller
+        print("PropertiesView set properties_controller")
+
+    def configure_submit_button_command(self):
+        print("Configuring the submit_button_command")
+        self.submit_button.configure(command=self.properties_controller.handle_submit)
+
+
+    # def configure_edit_api_key_button_command(self):
+    #    print("Configuring the edit_api_key_button_command")
+    #     self.edit_api_key_button.config(command=self.edit_api_key)
 
     def get_properties(self):
         self.properties['working_files_path'] = self.working_files_path_entry.get()
@@ -324,8 +343,7 @@ class PropertiesView:
         messagebox.showerror("Invalid values", error_message)
 
     def refresh_model_list(self, context_windows, api_key):
-        # TODO: Retrieve the API key from the properties model
-        api_key = self.controller.get_property('api_key')
+        # api_key = self.properties_controller.get_property('api_key')
         print("API key retrieved from properties model for use in refreshing model list: ", api_key)
         model_list = populate_model_list(context_windows, api_key)
         print("Updating model list: " + str(model_list))
@@ -337,6 +355,7 @@ class PropertiesView:
         self.working_files_path_entry.insert(0, file_directory)
 
     def edit_api_key(self):
+        print("edit_api_key called in properties_view")
         new_api_key = get_api_key(self.top)
 
         # Check if the user has cancelled the input (assuming get_api_key returns None or an empty string in that case)
@@ -360,7 +379,5 @@ class PropertiesView:
             messagebox.showerror("Invalid API key", "The API key you entered is invalid. Please try again.")
         else:
             # Only refresh the model list if the API key is valid
-            self.controller.set_property('api_key', new_api_key)
+            self.properties_controller.set_property('api_key', new_api_key)
             self.refresh_model_list(self.context_windows, new_api_key)
-
-
