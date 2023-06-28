@@ -4,9 +4,9 @@ from typing import Tuple, Dict, Union, List
 
 
 class LLMView(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.llm_controller = controller
+        self.llm_controller = None
         self.parameter_entries = []
         self.editing_parameters = False
         self.editing_name = False
@@ -14,7 +14,6 @@ class LLMView(tk.Frame):
         self.editing_description = False
         self.editing_api_key = False
         self.editing_parameters = False
-        self.create_widgets()
         self.parameters_save_button = None
         self.frequency_penalty_entry = None
         self.label_frequency_penalty = None
@@ -40,6 +39,7 @@ class LLMView(tk.Frame):
         self.model_var = None
         self.label_model = None
         self.model_menu = None
+        self.create_widgets()
 
     def create_widgets(self):
         bold_font = ('Helvetica', 10, 'bold')
@@ -174,6 +174,9 @@ class LLMView(tk.Frame):
         self.parameters_save_button = tk.Button(row22, text="Save Parameters", font=bold_font,
                                                 command=self.save_parameters)
         self.parameters_save_button.pack(side=tk.LEFT, padx=10)
+
+    def set_llm_controller(self, llm_controller):
+        self.llm_controller = llm_controller
 
     def save_parameters(self):
         """

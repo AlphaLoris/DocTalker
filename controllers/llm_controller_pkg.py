@@ -7,12 +7,15 @@ from utils.open_ai_capabilities import is_valid_api_key
 
 
 class LLMController:
-    def __init__(self, app_controller, parent):
-        self.app_controller = app_controller
-        self.model = LLM_Model()
-        self.view = LLMView(parent, self)
+    def __init__(self, llm_model, llm_view):
+        self.chat_session_controller = None
+        self.model = llm_model
+        self.view = llm_view
         self.working_directory = None  # initialize the log directory to None
         self.api_key = None  # initialize the api key to None
+
+    def set_chat_session_controller(self, chat_session_controller):
+        self.chat_session_controller = chat_session_controller
 
     # Get and Set File Directory
     def browse_directory(self):

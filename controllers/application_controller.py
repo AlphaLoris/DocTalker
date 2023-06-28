@@ -60,7 +60,7 @@ class ApplicationController:
         self.notebook.pack(fill=tk.BOTH, expand=1)
 
         self.chat_sessions_view = ChatSessionsView(self.notebook)
-        self.chat_sessions_controller = ChatSessionsController(self, self.chat_sessions_model, self.chat_sessions_view)
+        self.chat_sessions_controller = ChatSessionsController(self, self.chat_sessions_model, self.chat_sessions_view, self.window)
         self.chat_sessions_view.set_controller(self.chat_sessions_controller)
         self.documents_view = DocumentsView(self.notebook)
         self.documents_controller = DocumentsController(self, self.documents_model, self.documents_view)
