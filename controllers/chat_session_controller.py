@@ -1,6 +1,5 @@
 from tkinter import messagebox
-from controllers.llm_controller_pkg import LLMController
-# from utils.node import generate_unique_id
+from utils.node import generate_unique_id
 
 # TODO: Assign each chat session a unique ID and use it in API calls
 # TODO: Get user email address at the start of each chat session
@@ -14,7 +13,7 @@ class ChatSessionController:
         self.view.set_chat_session_controller(self)
         self.initiate_chat_session()
         self.llm_controller = llm_controller
-        # self.guid = generate_unique_id()
+        self.guid = generate_unique_id()
 
     def validate_chat_text(self, chat_text):
         if chat_text == "":
@@ -51,3 +50,5 @@ class ChatSessionController:
 #    - The query should be contextually relevant and aligned with the intent of the chat session
 #    - The query should not be abusive or offensive
 #    - The query should be comprehensible
+
+

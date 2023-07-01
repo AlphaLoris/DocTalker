@@ -1,4 +1,6 @@
 import tkinter as tk
+import tkinter.ttk as ttk
+import pandas as pd
 
 # TODO: track cost of each chat session
 # TODO: allow the admin to set a budget for each chat session

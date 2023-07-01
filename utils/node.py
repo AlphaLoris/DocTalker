@@ -26,7 +26,7 @@ Notes:
     - The num_tokens_from_messages function counts the number of tokens used by a list of messages.
 """
 
-import uuid
+from uuid import UUID
 import re
 from typing import List, Optional
 import tiktoken
@@ -250,8 +250,8 @@ class DocumentNode:
 
 
 class Sentence:
-    def __init__(self, sentence_id: uuid, sentence_text: str, prev_sentence: Optional[uuid] = None,
-                 next_sentence: Optional[uuid] = None) -> None:
+    def __init__(self, sentence_id: UUID, sentence_text: str, prev_sentence: Optional[UUID] = None,
+                 next_sentence: Optional[UUID] = None) -> None:
         # TODO: It may make sense to add a reference to the document node that the sentence belongs to.
         # TODO: Do the first and last sentences within this node have links to the sentences in the previous and next
         #  nodes?
@@ -339,8 +339,8 @@ class Sentence:
 
 class NodeFactory:
     @classmethod
-    def create_node(cls, title: str, headings: str, body_text: str, prev_node: Optional[uuid] = None,
-                    next_node: Optional[uuid] = None) -> DocumentNode:
+    def create_node(cls, title: str, headings: str, body_text: str, prev_node: Optional[UUID] = None,
+                    next_node: Optional[UUID] = None) -> DocumentNode:
         """
         Factory method to create a DocumentNode object.
 

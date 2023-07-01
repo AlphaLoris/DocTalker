@@ -36,12 +36,14 @@
 #
 # TODO: Properties/Configuration
 #    - Model parameters: Model, temperature, top_p, n, stream, max_tokens, presence_penalty, frequency_penalty
+#    - costs per token
 #    - Allow the admin user to choose the level of error checking
 #    - n_list, nprobe parameters for Faiss
 #
 # TODO: Database
 #
 # TODO: Document Management
+#    - Inventory of documents
 #    - Add new documents
 #    - Remove documents
 #    - Backing up of data - Directory, primary/secondary backup versions
@@ -81,6 +83,19 @@
 #    - Allow the admin to set a budget for each chat session
 #    - Track number of queries in each chat session
 #    - Track duration of each chat session
+#    - Chat Sessions Admin window
+#         - Chat session ID
+#         - User email address
+#         - User name
+#         - User organization
+#         - Display the start time
+#         - Display Start date of each chat session
+#         - Display running duration of each chat session
+#         - Display the current sentiment of the chat session
+#         - Display the running cost of each chat session
+#         - Display number of user queries submitted in each chat session
+#         - Display the number of prompts submitted in each chat session
+#         - Keywords/Topics of each chat session
 #
 # TODO: Individual Chat session Interface Features
 #    - Chat session introduction
@@ -90,10 +105,22 @@
 #         - Assign each chat session a unique ID and use it in API calls
 #         - Get user email address at the start of each chat session
 #         - Access to other means of communicating with humans for support
+#         - Capture start time and date of each chat session
 #    - Terminating the chat session
 #         - May want to handle this like an onion so that the user launches the session, then launches it again so they
 #              know they can rate the session after it ends before they start
-#    - Chat sessions history window
+#         - Alert User that the chat session is ending
+#         - Alert User that they can rate the chat session
+#         - Alert User that they can provide feedback on the chat session
+#         - Alert User that they can save the chat session
+#         - Alert User that they can email the chat session
+#    - Chat Sessions History window
+#         - History of all chat sessions
+#         - Access to previous chat sessions
+#         - When a chat session ends, it is moved from the Chat Sessions Admin window to the Chat Sessions History
+#              window
+#    - Testing Chat Session Interface
+#    - User Chat session history window
 #         - Memory of previous conversations with User
 #         - Delete Chat session history
 #         - Access to previous chat sessions (view/continue/search)
