@@ -27,6 +27,7 @@ Notes:
 """
 
 from uuid import UUID
+import uuid
 import re
 from typing import List, Optional
 import tiktoken
@@ -250,7 +251,7 @@ class DocumentNode:
 
 
 class Sentence:
-    def __init__(self, sentence_id: UUID, sentence_text: str, prev_sentence: Optional[UUID] = None,
+    def __init__(self, sentence_id: uuid, sentence_text: str, prev_sentence: Optional[UUID] = None,
                  next_sentence: Optional[UUID] = None) -> None:
         # TODO: It may make sense to add a reference to the document node that the sentence belongs to.
         # TODO: Do the first and last sentences within this node have links to the sentences in the previous and next
