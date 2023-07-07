@@ -20,6 +20,9 @@ class LaunchWindow(tk.Toplevel):
         self.email_entry = None
         self.email_label = None
 
+        self.title("Chat Session Info")
+        self.geometry("250x300")
+
         # User email
         self.email_label = tk.Label(self, text="Email Address:")
         self.email_label.pack(padx=20, pady=5)
