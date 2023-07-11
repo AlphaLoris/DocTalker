@@ -1,11 +1,14 @@
 import tkinter as tk
 import tkinter.messagebox as messagebox
 from typing import Tuple, Dict, Union, List
+import tkinter.font as tkFont
 
 
 class LLMView(tk.Frame):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.row_model = None
+        self.model_list = None
         self.llm_controller = None
         self.parameter_entries = []
         self.editing_parameters = False
@@ -42,7 +45,6 @@ class LLMView(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        bold_font = ('Helvetica', 10, 'bold')
 
         # Row 1
         row1 = tk.Frame(self)
@@ -55,7 +57,8 @@ class LLMView(tk.Frame):
         row2 = tk.Frame(self)
         row2.pack(fill=tk.X, padx=10, pady=3)
 
-        self.label_file_directory = tk.Label(row2, text="Application Files Directory Path:", font=bold_font)
+        self.label_file_directory = tk.Label(row2, text="Application Files Directory Path:",
+                                             font=("Helvetica", 10, "bold"))
         self.label_file_directory.pack(side=tk.LEFT, padx=10)
 
         row3 = tk.Frame(self)
@@ -64,27 +67,27 @@ class LLMView(tk.Frame):
         self.file_directory_entry = tk.Entry(row3)
         self.file_directory_entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
 
-        self.file_directory_save_button = tk.Button(row3, text="Browse", font=bold_font, command=self.save_directory)
+        self.file_directory_save_button = tk.Button(row3, text="Browse", font=("Helvetica", 10, "bold"),
+                                                    command=self.save_directory)
         self.file_directory_save_button.pack(side=tk.LEFT, padx=5)
 
         # ----------------------- Model selection ---------------------- #
         row16 = tk.Frame(self)
         row16.pack(fill=tk.X, padx=10, pady=3)
 
-        self.label_model = tk.Label(row16, text="Model", font=bold_font)
+        self.label_model = tk.Label(row16, text="Model", font=("Helvetica", 10, "bold"))
         self.label_model.pack(side=tk.LEFT, padx=10)
 
         self.model_var = tk.StringVar(row16)
-        self.model_var.set("Select Model")  # ("Select Model")
-        self.model_options = ["Select Model", "gpt-4", "gpt-3.5-turbo"]
-        self.model_menu = tk.OptionMenu(row16, self.model_var, *self.model_options)
+        self.model_var.set("Select Model")
+        self.model_menu = tk.OptionMenu(row16, self.model_var, *(self.model_options or ["Select Model"]))
         self.model_menu.pack(side=tk.LEFT, padx=10)
 
         # ----------------------API Key Section------------------------- #
         row14 = tk.Frame(self)
         row14.pack(fill=tk.X, padx=10, pady=3)
 
-        self.label_api_key = tk.Label(row14, text="API Key", font=bold_font)
+        self.label_api_key = tk.Label(row14, text="API Key", font=("Helvetica", 10, "bold"))
         self.label_api_key.pack(side=tk.LEFT, padx=10)
 
         row15 = tk.Frame(self)
@@ -92,14 +95,15 @@ class LLMView(tk.Frame):
 
         self.api_key_entry = tk.Entry(row15)
         self.api_key_entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-        self.api_key_save_button = tk.Button(row15, text="Save", font=bold_font, command=self.save_api_key)
+        self.api_key_save_button = tk.Button(row15, text="Save", font=("Helvetica", 10, "bold"),
+                                             command=self.save_api_key)
         self.api_key_save_button.pack(side=tk.LEFT, padx=5)
 
         # ----------------------- Parameters --------------------------- #
         row17 = tk.Frame(self)
         row17.pack(fill=tk.X, padx=10, pady=5)
 
-        self.label_parameters = tk.Label(row17, text="Parameters", font=bold_font)
+        self.label_parameters = tk.Label(row17, text="Parameters", font=("Helvetica", 10, "bold"))
         self.label_parameters.pack(side=tk.LEFT, padx=10)
 
         row18 = tk.Frame(self)
@@ -171,7 +175,7 @@ class LLMView(tk.Frame):
         self.parameter_entries.append(self.frequency_penalty_entry)
 
         # -------------------------- Save Parameters --------------------- #
-        self.parameters_save_button = tk.Button(row22, text="Save Parameters", font=bold_font,
+        self.parameters_save_button = tk.Button(row22, text="Save Parameters", font=("Helvetica", 10, "bold"),
                                                 command=self.save_parameters)
         self.parameters_save_button.pack(side=tk.LEFT, padx=10)
 
@@ -287,3 +291,87 @@ class LLMView(tk.Frame):
             self.api_key_entry.config(state=tk.NORMAL)
             self.api_key_save_button.config(text="Save")
             self.editing_api_key = False
+
+    def create_model_menu(self):
+        if self.model_menu:
+            # Update the existing menu
+            menu = self.model_menu["menu"]
+            menu.delete(0, "end")
+
+            for string in self.model_options:
+                menu.add_command(label=string,
+                                 command=lambda value=string: self.model_var.set(value))
+
+    """  
+    def create_model_menu(self):
+        if self.model_menu is None:
+            # Create the menu for the first time
+            self.model_menu = tk.OptionMenu(self.row_model, self.model_var, *self.model_options)
+            self.model_menu.pack(side=tk.LEFT, padx=10)
+        else:
+            # Update the existing menu
+            menu = self.model_menu["menu"]
+            menu.delete(0, "end")
+
+            for string in self.model_options:
+                menu.add_command(label=string,
+                                 command=lambda value=string: self.model_var.set(value))
+                                 
+    def create_model_menu(self):
+        if self.model_menu is None:
+            # Create the menu for the first time
+            row16 = tk.Frame(self)
+            row16.pack(fill=tk.X, padx=10, pady=3)
+
+            self.label_model = tk.Label(row16, text="Model", font=("Helvetica", 10, "bold"))
+            self.label_model.pack(side=tk.LEFT, padx=10)
+
+            self.model_var = tk.StringVar(row16)
+            self.model_var.set("Select Model")  # ("Select Model")
+
+            self.model_menu = tk.OptionMenu(row16, self.model_var, *self.model_options)
+            self.model_menu.pack(side=tk.LEFT, padx=10)
+        else:
+            # Update the existing menu
+            menu = self.model_menu["menu"]
+            menu.delete(0, "end")
+
+            for string in self.model_options:
+                menu.add_command(label=string,
+                                 command=lambda value=string: self.model_var.set(value))
+    """
+
+    def update_model_menu(self, model_list):
+        # Clear the current menu
+        menu = self.model_menu["menu"]
+        menu.delete(0, "end")
+
+        # Insert list of new options (model_list is a list of strings)
+        for string in model_list:
+            menu.add_command(label=string,
+                             command=lambda value=string: self.model_var.set(value))
+
+    def set_initial_state(self):
+        # Use the controller's get_property method to retrieve the values from the model
+        api_key = self.llm_controller.get_property('api_key')
+        llm_model = self.llm_controller.get_property('llm_model')
+        temperature = self.llm_controller.get_property('temperature')
+        top_p = self.llm_controller.get_property('top_p')
+        max_tokens = self.llm_controller.get_property('max_tokens')
+        presence_penalty = self.llm_controller.get_property('presence_penalty')
+        frequency_penalty = self.llm_controller.get_property('frequency_penalty')
+        model_list = self.llm_controller.get_property('model_list')
+        # self.update_model_menu(model_list)
+
+        # Set these values in the corresponding entry fields in the view
+        self.api_key_entry.insert(0, str(api_key) if api_key is not None else "")
+        self.model_var.set(str(llm_model) if llm_model is not None else "")
+        self.temperature_entry.insert(0, str(temperature) if temperature is not None else "")
+        self.top_p_entry.insert(0, str(top_p) if top_p is not None else "")
+        self.max_tokens_entry.insert(0, str(max_tokens) if max_tokens is not None else "")
+        self.presence_penalty_entry.insert(0, str(presence_penalty) if presence_penalty is not None else "")
+        self.frequency_penalty_entry.insert(0, str(frequency_penalty) if frequency_penalty is not None else "")
+
+        # self.update_model_menu(model_list)
+        self.model_options = model_list
+        self.create_model_menu()

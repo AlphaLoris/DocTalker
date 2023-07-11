@@ -10,7 +10,7 @@ from views.chat_sessions_view import LaunchWindow
 
 
 class ChatSessionsController:
-    def __init__(self, app_controller, chat_sessions_model, chat_sessions_view, parent):
+    def __init__(self, app_controller, properties_controller, chat_sessions_model, chat_sessions_view, parent):
         self.name = None
         self.email = None
         self.organization = None
@@ -19,6 +19,7 @@ class ChatSessionsController:
         self.window = None
         self.chat_session_notebook = None
         self.app_controller = app_controller
+        self.properties_controller = properties_controller
         self.chat_sessions_model = chat_sessions_model
         self.view = chat_sessions_view
         self.chat_sessions = []
@@ -51,13 +52,14 @@ class ChatSessionsController:
         chat_session_view.pack(fill=tk.BOTH, expand=True)
         chat_session_view.initiate_chat_session()
 
-        # Create LLMView and pack it within the intermediate frame
-        llm_model = LLM_Model()
+        # Create the LLMModel and LLMView, add the LLM View to the notebook and pack it within the intermediate frame
+        llm_model_properties = self.properties_controller.get_properties()
+        print("llm properties retrieved from the properties controller before creating the llm MVC components: ", llm_model_properties)
+        llm_model = LLM_Model(llm_model_properties)
         llm_view = LLMView(self.chat_session_notebook)  # Pass llm_tab_frame as the parent
         llm_view.pack(fill=tk.BOTH, expand=True)
         llm_controller = LLMController(llm_model, llm_view)
         llm_view.set_llm_controller(llm_controller)
-
         self.chat_session_notebook.add(chat_session_view, text="Chat Session")
         self.chat_session_notebook.add(llm_view, text="LLM Parameters")
 
@@ -73,6 +75,7 @@ class ChatSessionsController:
 
         # Notify observers
         chat_session_model.notify_observers()
+        llm_view.set_initial_state()
 
     def end_chat_session(self):
         pass

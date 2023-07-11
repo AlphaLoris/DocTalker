@@ -47,6 +47,7 @@ class LaunchWindow(tk.Toplevel):
         print(f"Email: {email}, Name: {name}, Organization: {organization}")
 """
 
+
 class ChatSessionView(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)

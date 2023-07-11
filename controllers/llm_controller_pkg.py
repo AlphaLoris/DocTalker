@@ -72,3 +72,18 @@ class LLMController:
         return True, None
 
     # End of Validate parameters.
+
+    def get_property(self, property_name):
+        """
+        Get the value of a specific property from the model.
+
+        Args:
+            property_name (str): The name of the property to retrieve.
+
+        Returns:
+            The value of the property, or None if the property does not exist.
+        """
+        print(f"Getting property in llm_controller from the llm_model: {property_name}")
+        property_value = getattr(self.model, property_name, None)
+        print(f"Value of property returned for '{property_name}': {property_value}")
+        return property_value

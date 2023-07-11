@@ -64,7 +64,7 @@ class PropertiesModel:
         self.api_key = None
         self.working_files_path = None
         self.context_length = None
-        self.model = None
+        self.llm_model = None
         self.user = None
         self.logit_bias = None
         self.frequency_penalty = None
@@ -76,6 +76,7 @@ class PropertiesModel:
         self.top_p = None
         self.temperature = None
         self.context_windows = context_windows
+        self.model_list = None
 
         # Load properties from file
         properties = self.file_operations.load_properties()
@@ -84,7 +85,7 @@ class PropertiesModel:
         self.api_key = properties.get('api_key')
         self.working_files_path = properties.get('working_files_path')
         self.context_length = properties.get('context_length')
-        self.model = properties.get('model')
+        self.llm_model = properties.get('model')
         self.user = properties.get('user')
         self.logit_bias = properties.get('logit_bias')
         self.frequency_penalty = properties.get('frequency_penalty')
@@ -95,6 +96,7 @@ class PropertiesModel:
         self.stop = properties.get('stop')
         self.top_p = properties.get('top_p')
         self.temperature = properties.get('temperature')
+        self.model_list = properties.get('model_list')
 
     def persist_properties(self):
         # Store properties in a dictionary
@@ -102,7 +104,7 @@ class PropertiesModel:
             'api_key': self.api_key,
             'working_files_path': self.working_files_path,
             'context_length': self.context_length,
-            'model': self.model,
+            'model': self.llm_model,
             'user': self.user,
             'logit_bias': self.logit_bias,
             'frequency_penalty': self.frequency_penalty,
@@ -112,14 +114,15 @@ class PropertiesModel:
             'n': self.n,
             'stop': self.stop,
             'top_p': self.top_p,
-            'temperature': self.temperature
+            'temperature': self.temperature,
+            'model_list': self.model_list
         }
 
         # Save properties to file
         self.file_operations.persist_properties(properties)
 
     def update_context_length(self, *args):
-        selected_model = self.model
+        selected_model = self.llm_model
         print("Updating context window value for selected model: " + selected_model)
         if selected_model in self.context_windows:
             context_length = self.context_windows[selected_model]
@@ -165,7 +168,7 @@ class PropertiesModel:
                 except ValueError as e:
                     errors.append(str(e))
             if key == "model":
-                self.model = value
+                self.llm_model = value
                 self.context_length = self.update_context_length()
                 print("Model set to: " + value)
             if key == "temperature":
@@ -216,7 +219,7 @@ class PropertiesModel:
                         self.max_tokens = None
                     else:
                         self.max_tokens = int(value)
-                        if self.max_tokens < 1 or self.max_tokens > self.context_windows[self.model]:
+                        if self.max_tokens < 1 or self.max_tokens > self.context_windows[self.llm_model]:
                             raise ValueError("Invalid max_tokens value")
                         print("Max tokens set to: " + str(self.max_tokens))
                 except ValueError:
@@ -273,5 +276,15 @@ class PropertiesModel:
                     errors.append(
                         f"Invalid user value entered for {key}: {value}. "
                         f"Please ensure the user value does not exceed 256 characters.")
+            if key == "model_list":
+                missing_models = [model for model in value if model not in self.context_windows]
+                if missing_models:
+                    errors.append(
+                        f"The following models are not in the context_windows list: {', '.join(missing_models)}"
+                    )
+                else:
+                    self.model_list = value
+                    print("Model list set to: " + str(self.model_list))
+
         if errors:
             raise ValueError("\n".join(errors))

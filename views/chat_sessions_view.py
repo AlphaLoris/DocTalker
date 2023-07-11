@@ -66,7 +66,8 @@ class ChatSessionsView(tk.Frame):
         for row in range(11):
             self.rowconfigure(row, weight=1)
 
-        # Add a simple label to the PromptsTab
+        print("Initializing ChatSessionsView")
+        # Add a simple label to the Chat Sessions Tab
         self.label = tk.Label(self, text="Chat Sessions", bg="white")
         self.label.grid(row=0, column=5, rowspan=1, columnspan=2, padx=10, pady=10)
 

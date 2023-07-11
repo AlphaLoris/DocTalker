@@ -43,11 +43,22 @@ class ApplicationController:
         }
         properties_model = PropertiesModel(r'C:\Users\glenn\DocTalker\properties.yaml', context_windows)
         properties_view = PropertiesView(self, self.root, context_windows)
-        self.properties_controller = PropertiesController(self, properties_model, properties_view)
+        """
+        self.properties_controller = PropertiesController(self, properties_model, properties_view, context_windows)
         properties_view.set_properties_controller(self.properties_controller)
         print("Properties controller initialized. Starting main loop.")
         # Start the Tkinter main loop
         self.root.mainloop()
+        """
+        self.properties_controller = PropertiesController(self, properties_model, properties_view, context_windows)
+        properties_view.set_properties_controller(self.properties_controller)
+        print("Properties controller initialized.")
+        if self.properties_controller.model.working_files_path and self.properties_controller.model.api_key:
+            print("Properties set; continuing initialization... ")
+            self.continue_initialization()
+        else:
+            print("Properties not set; starting main loop...")
+            self.root.mainloop()
 
     def continue_initialization(self):
         # Main window
@@ -60,7 +71,9 @@ class ApplicationController:
         self.notebook.pack(fill=tk.BOTH, expand=1)
 
         self.chat_sessions_view = ChatSessionsView(self.notebook)
-        self.chat_sessions_controller = ChatSessionsController(self, self.chat_sessions_model, self.chat_sessions_view, self.window)
+        self.chat_sessions_controller = ChatSessionsController(self, self.properties_controller,
+                                                               self.chat_sessions_model, self.chat_sessions_view,
+                                                               self.window)
         self.chat_sessions_view.set_controller(self.chat_sessions_controller)
         self.documents_view = DocumentsView(self.notebook)
         self.documents_controller = DocumentsController(self, self.documents_model, self.documents_view)

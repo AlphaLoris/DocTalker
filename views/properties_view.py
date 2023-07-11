@@ -314,11 +314,6 @@ class PropertiesView:
         print("Configuring the submit_button_command")
         self.submit_button.configure(command=self.properties_controller.handle_submit)
 
-
-    # def configure_edit_api_key_button_command(self):
-    #    print("Configuring the edit_api_key_button_command")
-    #     self.edit_api_key_button.config(command=self.edit_api_key)
-
     def get_properties(self):
         self.properties['working_files_path'] = self.working_files_path_entry.get()
         self.properties['api_key'] = self.api_key_entry.get()
@@ -343,11 +338,11 @@ class PropertiesView:
         messagebox.showerror("Invalid values", error_message)
 
     def refresh_model_list(self, context_windows, api_key):
-        # api_key = self.properties_controller.get_property('api_key')
-        print("API key retrieved from properties model for use in refreshing model list: ", api_key)
+        print("API key passed to refresh_model_list for use in refreshing model list: ", api_key)
         model_list = populate_model_list(context_windows, api_key)
         print("Updating model list: " + str(model_list))
         self.model_menu['values'] = ["Select Model"] + model_list
+        self.properties_controller.set_property('model_list', model_list)
 
     def get_files_directory(self):
         file_directory = filedialog.askdirectory()

@@ -6,13 +6,12 @@ from tkinter import messagebox
 
 class ChatSessionController:
     def __init__(self, chat_sessions_controller, chat_session_model, chat_session_view, llm_controller):
-        self.app_controller = chat_sessions_controller
+        self.chat_sessions_controller = chat_sessions_controller
         self.model = chat_session_model
         self.view = chat_session_view
         self.view.set_chat_session_controller(self)
-        # self.initiate_chat_session()
         self.llm_controller = llm_controller
-
+        # self.context_window = llm_controller.get_context_window()
 
     def validate_chat_text(self, chat_text):
         if chat_text == "":
