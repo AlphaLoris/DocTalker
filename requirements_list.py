@@ -1,3 +1,12 @@
+# TODO: Description of the application
+"""
+The application will parses the documents in the directory into section-based chunks, embed those chunks as vectors,
+and store those vectors in a FAISS vector database. These documents will used by the application to answer user
+questions by providing relevant portions of the document to the LLM along with the user's query and ask the LLM to use
+the document content to answer the user's question.  The application will preserve a history of the interactions between
+the application and the user to provide context to the model
+"""
+#
 # TODO: Business
 #    - Understand commercial licensing requirements for resources used in this project
 #    - Understand the legal requirements for using the OpenAI API
@@ -58,8 +67,6 @@
 #    - Progress bar for parsing/embedding, indexing
 #    - Figure out a way to leverage the chunk size and overlap controls and maybe the splitting methodology of this
 #         script along with text_block_extractor.py to get the best of both worlds.
-#    - Figure out a way to leverage the chunk size and overlap controls and maybe the splitting methodology of this
-#         script along with text_block_extractor.py to get the best of both worlds
 #    - It may make sense to add a reference to the document node that the sentence belongs to.
 #    - Include headings in the chunk text
 #    - Develop ways to evaluate and understand the semantic search performance
