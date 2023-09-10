@@ -1,3 +1,4 @@
+# main.py module
 import logging
 from controllers.application_controller import ApplicationController
 

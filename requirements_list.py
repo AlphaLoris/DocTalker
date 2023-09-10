@@ -12,6 +12,9 @@ the application and the user to provide context to the model
 # - Does the provided documentation address the user's query?
 # - User's Sentiment in query
 #
+# TODO: We create a properties view, but it is not used. We may want to add it to the Admin window. I believe it sets
+#  the default values for the chat sessions.
+#
 # TODO: Application Logic
 #
 # Load Documents
