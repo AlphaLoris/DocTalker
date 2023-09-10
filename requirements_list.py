@@ -7,6 +7,33 @@ the document content to answer the user's question.  The application will preser
 the application and the user to provide context to the model
 """
 #
+# Chat Response:
+# - Response, if confident enough to provide one
+# - Does the provided documentation address the user's query?
+# - User's Sentiment in query
+#
+# TODO: Application Logic
+#
+# Load Documents
+# Chunk Documents
+# Embed Documents
+# Create FAISS Index
+#
+# Get Query
+# Embed Query
+# Search Vector Database with Query Vector
+#
+# Create Chat History
+# Add Query to Chat History
+# Summarize/compress Chat History
+#
+# Compile Prompt
+# Submit Prompt
+# Parse  Response
+# Evaluate Response
+# Dispose of Response
+# Present Response
+
 # TODO: Business
 #    - Understand commercial licensing requirements for resources used in this project
 #    - Understand the legal requirements for using the OpenAI API
