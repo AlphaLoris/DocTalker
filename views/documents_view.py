@@ -6,6 +6,8 @@ class DocumentsView(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.h_scroll = None
+        self.v_scroll = None
         self.controller = None
 
         self.configure(bg="white")  # Set the background color to white for better visibility
@@ -16,7 +18,7 @@ class DocumentsView(tk.Frame):
         self.source_dir_frame = tk.Frame(self, bg="white")
         self.source_dir_frame.grid(row=0, column=0, columnspan=2, sticky="w", padx=5, pady=5)
 
-        # Add elements to the frame instead of the main widget
+        # Elements within source_dir_frame
         self.source_dir_label = tk.Label(self.source_dir_frame, text="Document Source Directory", bg="white")
         self.source_dir_label.grid(row=0, column=0, padx=5, columnspan=2, sticky="w")
 
@@ -33,14 +35,40 @@ class DocumentsView(tk.Frame):
 
         # Add a blank row
         blank_label = tk.Label(self, text="", bg="white")
-        blank_label.grid(row=3, column=0)
+        blank_label.grid(row=5, column=0, columnspan=2, pady=5)
 
-        # Add a documents Listbox to the PromptsTab
-        listbox_label = tk.Label(self, text="List of Documents", bg="white")
-        listbox_label.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+        # Frame for the Listbox and its scrollbars
+        self.listbox_frame = tk.Frame(self, bg="white")
+        self.listbox_frame.grid(row=6, column=0, columnspan=2, sticky="nsew", padx=10, pady=5)
+        self.listbox_frame.grid_columnconfigure(0, weight=1)
+        self.listbox_frame.grid_rowconfigure(0, weight=1)
 
-        self.documents_listbox = tk.Listbox(self, bg="white")
-        self.documents_listbox.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew", ipady=50)
+        # Initialize the scrollbars first
+        self.v_scroll = tk.Scrollbar(self.listbox_frame, orient="vertical")
+        self.h_scroll = tk.Scrollbar(self.listbox_frame, orient="horizontal")
+
+        # Elements within listbox_frame
+        self.listbox_label = tk.Label(self.listbox_frame, text="Indexed Documents", bg="white")
+        self.listbox_label.grid(row=0, column=0, columnspan=1, sticky="w")
+
+        self.documents_listbox = tk.Listbox(self.listbox_frame, bg="white", yscrollcommand=self.v_scroll.set,
+                                            xscrollcommand=self.h_scroll.set, selectmode=tk.MULTIPLE)
+        self.documents_listbox.grid(row=1, column=0, sticky="nsew")
+
+        self.v_scroll.config(command=self.documents_listbox.yview)
+        self.v_scroll.grid(row=1, column=1, sticky="ns")
+
+        self.h_scroll.config(command=self.documents_listbox.xview)
+        self.h_scroll.grid(row=2, column=0, sticky="ew")
+
+        # Corner frame to make the scrollbars look continuous
+        corner_frame = tk.Frame(self.listbox_frame, bg=self.v_scroll.cget("bg"), width=17, height=17)
+        corner_frame.grid(row=2, column=1, sticky="ne")
+
+        # Button to remove selected files
+        self.remove_files_button = tk.Button(self.listbox_frame, text="Remove Files",
+                                             command=self.remove_selected_files)
+        self.remove_files_button.grid(row=3, column=0, columnspan=2, pady=10, sticky="w")
 
     def set_controller(self, documents_controller):
         self.controller = documents_controller
@@ -55,7 +83,20 @@ class DocumentsView(tk.Frame):
         """Load files from source directory"""
         source_dir = self.source_dir.get()
         print("Loading files from source directory:", source_dir)
-        self.controller.load_files(source_dir)
+        loaded_files = self.controller.load_files(source_dir)  # Assuming this returns a list of loaded files
+        self.controller.add_files(loaded_files)
+        self.populate_listbox(loaded_files)
+
+    def remove_selected_files(self):
+        """Remove selected files from the index"""
+        selected_indices = self.documents_listbox.curselection()
+        if selected_indices:
+            selected_files = [self.documents_listbox.get(i) for i in selected_indices]
+            self.controller.remove_files_from_index(selected_files)
+
+            # Remove items from the listbox in reverse order to ensure indices don't change
+            for index in reversed(selected_indices):
+                self.documents_listbox.delete(index)
 
     def populate_listbox(self, filenames):
         for file in filenames:
@@ -63,4 +104,3 @@ class DocumentsView(tk.Frame):
 
     def get_selected_files(self):
         return [self.documents_listbox.get(i) for i in self.documents_listbox.curselection()]
-
