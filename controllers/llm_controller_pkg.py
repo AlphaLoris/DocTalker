@@ -4,10 +4,17 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 from utils.open_ai_capabilities import is_valid_api_key
+from utils.log_config import setup_colored_logging
+import logging
+
+# Set up logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 class LLMController:
     def __init__(self, llm_model, llm_view):
+        logger.debug("Initializing LLMController")
         self.chat_session_controller = None
         self.model = llm_model
         self.view = llm_view
@@ -15,10 +22,12 @@ class LLMController:
         self.api_key = None  # initialize the api key to None
 
     def set_chat_session_controller(self, chat_session_controller):
+        logger.debug("Setting chat_session_controller in LLMController")
         self.chat_session_controller = chat_session_controller
 
     # Get and Set File Directory
     def browse_directory(self):
+        logger.debug("Browsing for directory in LLMController")
         # open a file dialog to allow the user to select a directory
         directory = tk.filedialog.askdirectory()
         if directory:
@@ -28,11 +37,13 @@ class LLMController:
         return None
 
     def set_directory(self, directory):
+        logger.debug("Setting directory in LLMController")
         self.model.directory = directory
     # End of Get File Directory
 
     # Set API Key
     def set_api_key(self, api_key):
+        logger.debug("Setting API Key in LLMController")
         if self.api_key is None:
             if self.validate_api_key(api_key):
                 self.model.api_key = api_key
@@ -49,6 +60,7 @@ class LLMController:
             return True
 
     def validate_api_key(self, api_key):
+        logger.debug("Validating API Key in LLMController")
         error_messages = is_valid_api_key(api_key)
         if error_messages:
             messagebox.showerror("Invalid API Key:", "Invalid API Key entered.\n" + "\n".join(error_messages))
@@ -59,6 +71,7 @@ class LLMController:
 
     # Validate parameters. If the parameters are valid, set them in the model
     def set_parameters(self, parameters):
+        logger.debug("Setting parameters in LLMController")
         errors = []
 
         for key, value in parameters.items():
@@ -74,6 +87,7 @@ class LLMController:
     # End of Validate parameters.
 
     def get_property(self, property_name):
+        logger.debug("Getting property in LLMController")
         """
         Get the value of a specific property from the model.
 
@@ -83,7 +97,7 @@ class LLMController:
         Returns:
             The value of the property, or None if the property does not exist.
         """
-        print(f"Getting property in llm_controller from the llm_model: {property_name}")
+        logger.info(f"Getting property in llm_controller from the llm_model: {property_name}")
         property_value = getattr(self.model, property_name, None)
-        print(f"Value of property returned for '{property_name}': {property_value}")
+        logger.info(f"Value of property returned for '{property_name}': {property_value}")
         return property_value

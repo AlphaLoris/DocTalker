@@ -1,6 +1,12 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from utils.open_ai_capabilities import populate_model_list, get_api_key, is_valid_api_key_model
+import logging
+from utils.log_config import setup_colored_logging
+
+# Setting up colored logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 class ToolTip:
@@ -80,18 +86,19 @@ class PropertiesView:
         self.model_var = None
         self.token_count = None
         self.parameters_frame = None
+        logger.debug("PropertiesView initialized.")
 
     def on_model_change(self, *args):
         selected_model = self.model_menu.get()
-        print(f"Selected model: {selected_model}")
+        logger.debug(f"Selected model: {selected_model}")
         if selected_model != "Select Model":
-            print("Model has been selected. Displaying model parameters.")
+            logger.debug(f"Model {selected_model} selected. Updating UI to show model parameters.")
             self.model_parameters_frame.grid()
             self.submit_button_frame.grid()
             self.model_parameters_frame.update_idletasks()
             self.submit_button_frame.update_idletasks()
         else:
-            print("Model has not been selected. Hiding model parameters.")
+            logger.info("Model has not been selected. Hiding model parameters.")
             self.model_parameters_frame.grid_forget()
             self.submit_button_frame.grid_forget()
 
@@ -308,10 +315,10 @@ class PropertiesView:
 
     def set_properties_controller(self, properties_controller):
         self.properties_controller = properties_controller
-        print("PropertiesView set properties_controller")
+        logger.debug("PropertiesView set properties_controller")
 
     def configure_submit_button_command(self):
-        print("Configuring the submit_button_command")
+        logger.debug("Configuring the submit_button_command")
         self.submit_button.configure(command=self.properties_controller.handle_submit)
 
     def get_properties(self):
@@ -335,12 +342,15 @@ class PropertiesView:
 
     def show_error_message(self, errors):
         error_message = "The following errors occurred:\n" + errors
+        logger.error(error_message)
         messagebox.showerror("Invalid values", error_message)
 
     def refresh_model_list(self, context_windows, api_key):
-        print("API key passed to refresh_model_list for use in refreshing model list: ", api_key)
+        logger.debug(f"API key passed to refresh_model_list for use in refreshing model list: {api_key}")
+        logger.info("Calling open_ai_capabilities.populate_model_list.")
         model_list = populate_model_list(context_windows, api_key)
-        print("Updating model list: " + str(model_list))
+        logger.info("Returned from open_ai_capabilities.populate_model_list.")
+        logger.debug(f"Updating model list: {model_list}")
         self.model_menu['values'] = ["Select Model"] + model_list
         self.properties_controller.set_property('model_list', model_list)
 
@@ -348,6 +358,7 @@ class PropertiesView:
         file_directory = filedialog.askdirectory()
         self.working_files_path_entry.delete(0, 'end')
         self.working_files_path_entry.insert(0, file_directory)
+        logger.debug("Browse button clicked. File directory selected: {file_directory}")
 
     def edit_api_key(self):
         print("edit_api_key called in properties_view")
@@ -356,10 +367,10 @@ class PropertiesView:
         # Check if the user has cancelled the input (assuming get_api_key returns None or an empty string in that case)
         if not new_api_key:
             # Optionally, you can log or show a message that the user cancelled the input.
-            print("User cancelled the input.")
+            logger.info("User cancelled the input.")
             return  # Exit the method early as there's nothing to process.
 
-        print("New API key passed to edit_api_key in properties_view: ", new_api_key)
+        logger.debug(f"New API key passed to edit_api_key in properties_view: {new_api_key}")
 
         self.api_key_entry.config(state='normal')  # Temporarily make the field editable
         self.api_key_entry.delete(0, 'end')
@@ -371,6 +382,7 @@ class PropertiesView:
         try:
             is_valid_api_key_model(new_api_key, test_model)
         except Exception as e:
+            logger.error(f"An error occurred while validating the API key: {str(e)}")
             messagebox.showerror("Invalid API key", "The API key you entered is invalid. Please try again.")
         else:
             # Only refresh the model list if the API key is valid

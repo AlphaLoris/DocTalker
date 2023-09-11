@@ -10,10 +10,17 @@ from models.properties_model import PropertiesModel
 from views.documents_view import DocumentsView
 from views.chat_sessions_view import ChatSessionsView
 from views.properties_view import PropertiesView
+from utils.log_config import setup_colored_logging
+import logging
+
+# Set up logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 class ApplicationController:
     def __init__(self):
+        logger.debug("Initializing Application Controller.")
         # Create a root window but keep it hidden
         self.chat_sessions_view = None
         self.documents_view = None
@@ -26,8 +33,6 @@ class ApplicationController:
         self.documents_model = DocumentsModel()
         self.chat_sessions_model = ChatSessionsModel()
         self.notebook = None
-        logger = logging.getLogger(__name__)
-        logger.info("Initializing Application Controller and creating main window.")
 
         context_windows = {
             "gpt-4": 8192,
@@ -41,26 +46,23 @@ class ApplicationController:
             "gpt-3.5-turbo-0613": 4096,
             "gpt-3.5-turbo-0301": 4096
         }
+
         properties_model = PropertiesModel(r'C:\Users\glenn\DocTalker\properties.yaml', context_windows)
         properties_view = PropertiesView(self, self.root, context_windows)
-        """
+
         self.properties_controller = PropertiesController(self, properties_model, properties_view, context_windows)
         properties_view.set_properties_controller(self.properties_controller)
-        print("Properties controller initialized. Starting main loop.")
-        # Start the Tkinter main loop
-        self.root.mainloop()
-        """
-        self.properties_controller = PropertiesController(self, properties_model, properties_view, context_windows)
-        properties_view.set_properties_controller(self.properties_controller)
-        print("Properties controller initialized.")
+        logger.debug("Properties controller initialized.")
         if self.properties_controller.model.working_files_path and self.properties_controller.model.api_key:
-            print("Properties set; continuing initialization... ")
+            logger.debug("Properties set; continuing initialization... ")
             self.continue_initialization()
         else:
             print("Properties not set; starting main loop...")
             self.root.mainloop()
 
     def continue_initialization(self):
+        logger.debug("Continuing initialization of ApplicationController.")
+        logger.info("Creating main window.")
         # Main window
         self.window = tk.Tk()
         self.window.title("DocTalker LLM AI Chatbot")
@@ -84,6 +86,7 @@ class ApplicationController:
         self.notebook.add(self.documents_controller.view, text="Documents")
 
         self.view = self.window
+        logger.debug("ApplicationController initialization complete and main window created.")
 
         # Start the main event loop of Tkinter
         self.window.mainloop()

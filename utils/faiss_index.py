@@ -23,8 +23,16 @@ Notes:
 Conceptual notes are below the code.
 """
 
+# faiss_index.py
+
 import faiss
 import numpy as np
+from utils.log_config import setup_colored_logging
+import logging
+
+# Logging setup
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 # text-embedding-ada-002 embeddings = np.zeros((1, 1536))
@@ -38,6 +46,7 @@ import numpy as np
 
 class FaissIndex:
     def __init__(self, embeddings, data_type):
+        logger.info("Initializing FaissIndex object")
         """
         The constructor initializes a FaissIndex object using a set of embeddings and a data type. The embeddings is a
         list (or similar collection) of vectors, and data_type is a string describing the data (node, sentence, or
@@ -67,16 +76,16 @@ class FaissIndex:
         :return: None
         :rtype: None
         """
-        print("Creating index in FaissIndex.create_index()")
+        logger.info("Creating index in FaissIndex.create_index()")
         d = self.embeddings_np.shape[1]
         quantizer = faiss.IndexFlatL2(d)
         self.index = faiss.IndexIVFFlat(quantizer, d, nlist, faiss.METRIC_L2)
         self.index.nprobe = nprobe
-        print("Shape of embeddings_np:", self.embeddings_np.shape)
+        logger.debug("Shape of embeddings_np:", self.embeddings_np.shape)
         if not self.index.is_trained:
             self.index.train(self.embeddings_np)
         self.index.add(self.embeddings_np)
-        print("Index created in FaissIndex.create_index()")
+        logger.info("Index created in FaissIndex.create_index()")
 
     def search(self, query_embedding, k) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -91,11 +100,12 @@ class FaissIndex:
         :rtype: tuple of (numpy.ndarray, numpy.ndarray)
         """
         if self.index is None:
+            logger.error('Index has not been created')
             raise ValueError('Index has not been created')
         query_np = np.array(query_embedding, dtype=np.float32)
         if query_np.ndim == 2 and query_np.shape[1] == 1:
             query_np = query_np.squeeze(axis=1)
-        print(query_np.shape)  # Add this line
+        logger.debug(f"Query shape: {query_np.shape}")
         distances, indices = self.index.search(query_np, k)
         return indices, distances
 
@@ -105,9 +115,9 @@ class FaissIndex:
         :param index_path: The path to save the index to.
         :return: None
         """
-        print(f"Saving Faiss index for {self.data_type} to", index_path)
+        logger.info(f"Saving Faiss index for {self.data_type} to", index_path)
         faiss.write_index(self.index, index_path)
-        print(f"Faiss index for {self.data_type} saved to", index_path)
+        logger.info(f"Faiss index for {self.data_type} saved to", index_path)
 
     def load_index(self, index_path):
         """
@@ -115,9 +125,9 @@ class FaissIndex:
         :param index_path: The path to load the index from.
         :return: None
         """
-        print(f"Loading Faiss index for {self.data_type} from", index_path)
+        logger.info(f"Loading Faiss index for {self.data_type} from", index_path)
         self.index = faiss.read_index(index_path)
-        print(f"Faiss index for {self.data_type} loaded from", index_path)
+        logger.info(f"Faiss index for {self.data_type} loaded from", index_path)
 
     def get_index(self):
         """

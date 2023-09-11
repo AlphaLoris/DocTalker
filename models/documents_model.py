@@ -1,3 +1,12 @@
+# TODO: refer to the parse_files_for_sym_search.py Module for guidance on how to handle the documents.
+
+from utils.log_config import setup_colored_logging
+import logging
+
+# Logging setup
+setup_colored_logging()
+logger = logging.getLogger(__name__)
+
 class DocumentsModel:
     def __init__(self):
         self._directory = None  # to store the path of the document source directory

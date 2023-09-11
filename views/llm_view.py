@@ -2,11 +2,20 @@ import tkinter as tk
 import tkinter.messagebox as messagebox
 from typing import Tuple, Dict, Union, List
 import tkinter.font as tkFont
+import logging
+from utils.log_config import setup_colored_logging
+
+# Set up colored logging
+setup_colored_logging()
+
+# Get the logger for this module
+logger = logging.getLogger(__name__)
 
 
 class LLMView(tk.Frame):
     def __init__(self, parent=None):
         super().__init__(parent)
+        logger.debug("Initializing LLMView.")
         self.row_model = None
         self.model_list = None
         self.llm_controller = None
@@ -45,6 +54,7 @@ class LLMView(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
+        logger.debug("Creating widgets for LLMView.")
 
         # Row 1
         row1 = tk.Frame(self)
@@ -183,12 +193,14 @@ class LLMView(tk.Frame):
         self.llm_controller = llm_controller
 
     def save_parameters(self):
+        logger.debug("Attempting to save parameters.")
         """
         Saves the parameters from the UI to the model.
         Raises an exception if the parameters are invalid or if there is an error saving the parameters to the model.
         """
         parameters, errors = self.get_parameters()
         if errors:
+            logger.warning(f"Parameter validation errors: {errors}")
             messagebox.showerror("Error", "\n".join(errors))
             return
 
@@ -203,6 +215,7 @@ class LLMView(tk.Frame):
         messagebox.showinfo("Success", "Parameters saved successfully")
 
     def get_parameters(self) -> Tuple[Dict[str, Union[float, int, None]], List[str]]:
+        logger.debug("Fetching and validating parameters from UI.")
         parameters: Dict[str, Union[float, int, None]] = {}
         errors = []
 
@@ -252,6 +265,7 @@ class LLMView(tk.Frame):
         return parameters, errors
 
     def save_directory(self):
+        logger.debug("Attempting to save directory.")
         """
         Save the directory value currently selected in the UI to the model.
         If the directory value is not currently being edited, the function will browse for a new directory.
@@ -280,6 +294,7 @@ class LLMView(tk.Frame):
                 self.editing_directory = False
 
     def save_api_key(self):
+        logger.debug("Attempting to save API key.")
         if not self.editing_api_key:
             api_key = self.api_key_entry.get()
             if api_key:
@@ -293,6 +308,7 @@ class LLMView(tk.Frame):
             self.editing_api_key = False
 
     def create_model_menu(self):
+        logger.debug("Creating the model menu.")
         if self.model_menu:
             # Update the existing menu
             menu = self.model_menu["menu"]
@@ -302,46 +318,8 @@ class LLMView(tk.Frame):
                 menu.add_command(label=string,
                                  command=lambda value=string: self.model_var.set(value))
 
-    """  
-    def create_model_menu(self):
-        if self.model_menu is None:
-            # Create the menu for the first time
-            self.model_menu = tk.OptionMenu(self.row_model, self.model_var, *self.model_options)
-            self.model_menu.pack(side=tk.LEFT, padx=10)
-        else:
-            # Update the existing menu
-            menu = self.model_menu["menu"]
-            menu.delete(0, "end")
-
-            for string in self.model_options:
-                menu.add_command(label=string,
-                                 command=lambda value=string: self.model_var.set(value))
-                                 
-    def create_model_menu(self):
-        if self.model_menu is None:
-            # Create the menu for the first time
-            row16 = tk.Frame(self)
-            row16.pack(fill=tk.X, padx=10, pady=3)
-
-            self.label_model = tk.Label(row16, text="Model", font=("Helvetica", 10, "bold"))
-            self.label_model.pack(side=tk.LEFT, padx=10)
-
-            self.model_var = tk.StringVar(row16)
-            self.model_var.set("Select Model")  # ("Select Model")
-
-            self.model_menu = tk.OptionMenu(row16, self.model_var, *self.model_options)
-            self.model_menu.pack(side=tk.LEFT, padx=10)
-        else:
-            # Update the existing menu
-            menu = self.model_menu["menu"]
-            menu.delete(0, "end")
-
-            for string in self.model_options:
-                menu.add_command(label=string,
-                                 command=lambda value=string: self.model_var.set(value))
-    """
-
     def update_model_menu(self, model_list):
+        logger.debug("Updating model menu with new list.")
         # Clear the current menu
         menu = self.model_menu["menu"]
         menu.delete(0, "end")
@@ -352,6 +330,7 @@ class LLMView(tk.Frame):
                              command=lambda value=string: self.model_var.set(value))
 
     def set_initial_state(self):
+        logger.debug("Setting initial state for LLMView.")
         # Use the controller's get_property method to retrieve the values from the model
         api_key = self.llm_controller.get_property('api_key')
         llm_model = self.llm_controller.get_property('llm_model')

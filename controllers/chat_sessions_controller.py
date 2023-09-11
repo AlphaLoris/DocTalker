@@ -7,10 +7,17 @@ from views.llm_view import LLMView
 import tkinter as tk
 from tkinter import ttk
 from views.chat_sessions_view import LaunchWindow
+from utils.log_config import setup_colored_logging
+import logging
+
+# Set up logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 class ChatSessionsController:
     def __init__(self, app_controller, properties_controller, chat_sessions_model, chat_sessions_view, parent):
+        logger.debug("Initializing ChatSessionsController")
         self.name = None
         self.email = None
         self.organization = None
@@ -26,17 +33,24 @@ class ChatSessionsController:
         self.launch_window = None
 
     def initiate_chat_session(self):
+        logger.debug("Initiating chat session by creating chat session window.")
         self.launch_window = LaunchWindow(parent=self.view, controller=self)
+        logger.debug("Chat session window created.")
 
     def open_chat_session(self):
+        logger.debug("Opening chat session by capturing the user's email, name, and organization.")
         # TODO: Update this to validate the user's email address, name, and organization
         email = self.launch_window.email_entry.get()
         name = self.launch_window.name_entry.get()
         organization = self.launch_window.org_entry.get()
+        logger.debug(f"Attempting to launch chat session. Email: {email}, Name: {name}, Organization: {organization}")
         self.launch_chat_session(email, name, organization)
+        logger.debug("Chat session successfully launched.")
         self.launch_window.destroy()
 
+    # TODO: Add much more detailed logging to this method
     def launch_chat_session(self, email, name, organization):
+        logger.debug("Launching chat session")
         self.email = email
         self.name = name
         self.organization = organization
@@ -54,7 +68,8 @@ class ChatSessionsController:
 
         # Create the LLMModel and LLMView, add the LLM View to the notebook and pack it within the intermediate frame
         llm_model_properties = self.properties_controller.get_properties()
-        print("llm properties retrieved from the properties controller before creating the llm MVC components: ", llm_model_properties)
+        logger.info("llm properties retrieved from the properties controller. Creating the llm MVC components: ",
+                    llm_model_properties)
         llm_model = LLM_Model(llm_model_properties)
         llm_view = LLMView(self.chat_session_notebook)  # Pass llm_tab_frame as the parent
         llm_view.pack(fill=tk.BOTH, expand=True)
@@ -76,8 +91,10 @@ class ChatSessionsController:
         # Notify observers
         chat_session_model.notify_observers()
         llm_view.set_initial_state()
+        logger.debug("Chat session launched.")
 
     def end_chat_session(self):
+        logger.debug("Ending chat session")
         pass
 
     def update(self, chat_session):

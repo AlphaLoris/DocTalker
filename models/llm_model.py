@@ -1,7 +1,16 @@
+from utils.log_config import setup_colored_logging
+import logging
+
+# Logging setup
+setup_colored_logging()
+logger = logging.getLogger(__name__)
+
+
 class LLM_Model:
 
     # Revised PromptChain class into (?) configuration settings for Model
     def __init__(self, properties):
+        logger.debug("Initializing LLM_Model")
         self.api_key = properties.get('api_key')
         self.llm_model = properties.get('llm_model')
         self.context_length = properties.get('context_length')
@@ -21,18 +30,21 @@ class LLM_Model:
         # self.submission_log = None
 
     def set_model(self, llm_model):
+        logger.debug(f"Setting LLM model: {llm_model}")
         self.llm_model = llm_model
 
     def set_api_key(self, api_key):
+        logger.debug(f"Setting API key: {api_key}")
         self.api_key = api_key
 
     def set_model_parameters(self, param_values):
+        logger.debug(f"Setting model parameters: {param_values}")
         self.temperature = param_values.get('temperature')
         self.top_p = param_values.get('top_p')
         self.max_tokens = param_values.get('max_tokens')
         self.presence_penalty = param_values.get('presence_penalty')
         self.frequency_penalty = param_values.get('frequency_penalty')
         self.model_list = param_values.get('model_list')
-        print("Model parameters set to: ", "temp: ", self.temperature, "   top_p: ", self.top_p, "   max_tokens: ",
-              self.max_tokens, "   presence_penalty: ", self.presence_penalty, "   frequency_penalty: ",
-              self.frequency_penalty)
+        logger.info(f"Model parameters set to: ", "temp: ", self.temperature, "   top_p: ", self.top_p,
+                    "   max_tokens: ", self.max_tokens, "   presence_penalty: ", self.presence_penalty,
+                    "   frequency_penalty: ", self.frequency_penalty)

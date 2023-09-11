@@ -30,9 +30,15 @@ from uuid import UUID
 import uuid
 import re
 from typing import List, Optional
-import tiktoken
 import numpy as np
 import json
+from utils.log_config import setup_colored_logging
+import logging
+from utils.open_ai_capabilities import num_tokens_from_messages
+
+# Logging setup
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 def generate_unique_id() -> str:
@@ -42,39 +48,13 @@ def generate_unique_id() -> str:
     :return: A unique ID
     :rtype: str
     """
-    return str(uuid.uuid4())
-
-
-def num_tokens_from_messages(messages: List[str], model: str = "gpt-3.5-turbo-0301") -> int:
-    """
-    Returns the number of tokens used by a list of messages. Used for allocating the available context window space for
-    a prompt
-
-    :param messages: List of messages to calculate token count from
-    :type messages: List[str]
-    :param model: Model name to use for tokenization (default is "gpt-3.5-turbo-0301")
-    :type model: str
-    :return: Total number of tokens in the messages
-    :rtype: int
-    :raises NotImplementedError: If method is not implemented for provided model
-    """
-    try:
-        encoding = tiktoken.encoding_for_model(model)
-    except KeyError:
-        encoding = tiktoken.get_encoding("cl100k_base")
-    if model == "gpt-3.5-turbo-0301":  # note: future models may deviate from this
-        num_tokens = 0
-        for message in messages:
-            num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
-            num_tokens += len(encoding.encode(message))
-        num_tokens += 2  # every reply is primed with <im_start>assistant
-        print("num_tokens calculated:", num_tokens)
-        return num_tokens
-    else:
-        raise NotImplementedError(f"""num_tokens_from_messages() is not presently implemented for model {model}.""")
+    unique_id = str(uuid.uuid4())
+    logger.debug("Generated unique ID: %s", unique_id)
+    return unique_id
 
 
 def write_document_nodes_to_file(document_nodes_dict: dict, output_file_path: str) -> None:
+    logger.debug("Writing document nodes to file in write_document_nodes_to_file. Path: %s", output_file_path)
     """
     Writes document nodes to a file in JSON format.
 
@@ -90,9 +70,11 @@ def write_document_nodes_to_file(document_nodes_dict: dict, output_file_path: st
             ensure_ascii=False,
             indent=4
         )
+    logger.debug("Document nodes written to file in write_document_nodes_to_file. Path: %s", output_file_path)
 
 
 def read_document_nodes_from_file(input_file_path: str) -> dict:
+    logger.debug("Reading document nodes from file in read_document_nodes_from_file. Path: %s", input_file_path)
     """
     Reads document nodes from a file in JSON format.
 
@@ -110,6 +92,7 @@ def read_document_nodes_from_file(input_file_path: str) -> dict:
         node = DocumentNode.from_dict(node_dict)
         document_nodes_dict[node_id] = node
 
+    logger.debug("Document nodes read from file in read_document_nodes_from_file. Path: %s", input_file_path)
     return document_nodes_dict
 
 
@@ -136,6 +119,7 @@ class DocumentNode:
         :param next_node: ID of the next node
         :type next_node: Optional[str]
         """
+        logger.debug("Creating document node in DocumentNode.__init__")
         self.id = generate_unique_id()
         self.title = title
         self.headings = headings
@@ -144,12 +128,14 @@ class DocumentNode:
         self.prev_node = prev_node
         self.next_node = next_node
         self.sentence_list = self.create_sentence_list()
+        # TODO: Need to pass in the model when this is called, and need to pass the model when this is called:
         self.tokens_count = num_tokens_from_messages([self.headings, self.body_text]) - 10
         self.embedding = np.zeros((1, 1536))
         self.embedding_model = ""
         self.token_usage = 0
 
     def create_sentence_list(self) -> List['Sentence']:
+        logger.debug("Creating the sentence list in DocumentNode.create_sentence_list")
         """
         Splits the document's body text into individual sentences and returns them as Sentence objects. The sentences
         will be used to incrementally expand the node text when composing a prompt for a model with a limited context
@@ -165,17 +151,19 @@ class DocumentNode:
             if sentence_text.strip():
                 prev_sentence = sentence_objects[-1].id if i > 0 else None
                 sentence = SentenceFactory.create_sentence(sentence_text=sentence_text, prev_sentence=prev_sentence)
-                print("Sentence text being added to the sentence object:", sentence_text)
+                logger.info("Sentence text being added to the sentence object:", sentence_text)
                 sentence_objects.append(sentence)
                 if i > 0:
                     sentence_objects[i - 1].next_sentence = sentence.id
             else:
-                print(
-                    f"Empty sentence detected after splitting at index {i}. Original sentence text: '{sentence_text}'")
-        print(f"Total sentences detected: {len(sentence_objects)}")
+                logger.info(f"Empty sentence detected after splitting at index {i}. Original sentence text: '"
+                            f"{sentence_text}'")
+        logger.info(f"Total sentences detected: {len(sentence_objects)}")
+        logger.debug("Sentence list created in DocumentNode.create_sentence_list")
         return sentence_objects
 
     def to_string(self) -> str:
+        logger.debug(f"Converting document node {self.id} to string in DocumentNode.to_string")
         """
         Returns a string representation of the DocumentNode object.
 
@@ -199,6 +187,7 @@ class DocumentNode:
         result += "embedding:\n" + str(self.embedding) + "\n\n"
         result += "next_node:\n" + str(self.next_node) + "\n\n"
         result += "\n"
+        logger.debug(f"Document node {self.id} converted to string in DocumentNode.to_string")
         return result
 
     def to_dict(self) -> dict:
@@ -208,6 +197,7 @@ class DocumentNode:
         :return: A dictionary representation of the DocumentNode object
         :rtype: dict
         """
+        logger.debug(f"Converting document node {self.id} to dictionary in DocumentNode.to_dict")
         return {
             "prev_node": self.prev_node,
             "id": str(self.id),
@@ -233,6 +223,7 @@ class DocumentNode:
         :return: A DocumentNode object
         :rtype: DocumentNode
         """
+        logger.debug(f"Creating document node from dictionary in DocumentNode.from_dict")
         node = cls(
             title=data["title"],
             headings=data["headings"],
@@ -277,6 +268,7 @@ class Sentence:
         self.embedding = np.zeros((1, 1536))
         self.embedding_model = ""
         self.token_usage = 0
+        logger.debug("Sentence created in Sentence.__init__")
 
     def to_string(self) -> str:
         """
@@ -285,6 +277,7 @@ class Sentence:
         :return: A string representation of the Sentence object
         :rtype: str
         """
+        logger.debug(f"Converting sentence {self.id} to string in Sentence.to_string")
         result = ""
         result += "prev_sentence:\n" + str(self.prev_sentence) + "\n\n"
         result += "id:\n" + str(self.id) + "\n\n"
@@ -304,6 +297,7 @@ class Sentence:
         :return: A dictionary representation of the Sentence object
         :rtype: dict
         """
+        logger.debug(f"Converting sentence {self.id} to dictionary in Sentence.to_dict")
         return {
             "prev_sentence": self.prev_sentence,
             "id": str(self.id),
@@ -325,6 +319,7 @@ class Sentence:
         :return: A Sentence object
         :rtype: Sentence
         """
+        logger.debug(f"Creating sentence from dictionary in Sentence.from_dict")
         sentence = cls(
             sentence_id=uuid.UUID(data["id"]),
             sentence_text=data["text"],
@@ -342,6 +337,7 @@ class NodeFactory:
     @classmethod
     def create_node(cls, title: str, headings: str, body_text: str, prev_node: Optional[UUID] = None,
                     next_node: Optional[UUID] = None) -> DocumentNode:
+        logger.debug("Creating document node in NodeFactory.create_node")
         """
         Factory method to create a DocumentNode object.
 
@@ -365,6 +361,7 @@ class SentenceFactory:
     @classmethod
     def create_sentence(cls, sentence_text: str, prev_sentence: Optional[str] = None,
                         next_sentence: Optional[str] = None) -> Sentence:
+        logger.debug("Creating sentence in SentenceFactory.create_sentence")
         """
         Factory method to create a Sentence object.
 

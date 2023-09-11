@@ -34,85 +34,12 @@ from document_manager import DocumentManager
 from keyword_manager import KeywordManager
 import numpy as np
 from keyword_semantic_search_test import semantic_search_test
+from utils.log_config import setup_colored_logging
+import logging
 
-
-# TODO: Understand commercial licensing requirements for resources used in this project
-# TODO: Maybe use Faiss w/o GPU support and w/o Conda
-# TODO: Analyze code with Pylint, Pydeps and mypy, radon or wily
-# TODO: Understand the legal requirements for using the OpenAI API
-# TODO: Optimizations
-# TODO: Optimize text division
-# TODO: Optimize Index type
-# TODO: Optimize Similarity calculation type
-# TODO: Optimize number of results returned
-# TODO: Optimize method of assembling results into prompt
-# TODO: Optimize prompt composition/characteristics/technique
-# TODO: Optimize response validation
-# TODO: Develop ways to evaluate and understand the semantic search performance
-# TODO: Develop ways to understand the relative characteristics of the embeddings
-# TODO: Include headings in the chunk text
-# TODO: Page Numbers are not working. Would need to develop a new approach to parsing .docx files to get page numbers.
-# TODO: Tune nlist and nprobe for Faiss index
-# TODO: Add docstrings to the components
-# TODO: Add Logging to the components
-# TODO: Add unit tests to the components
-# TODO: Backup of all Data
-# TODO: Expose all behavioral parameters to the user: Model parameters, Tokenizer parameters, error checking, etc.
-# TODO: Capture the questions the model had trouble answering and use them to improve the documentation
-# TODO: Use a visual representation tool like Nomic to map queries against the user manual content to identify problem
-#  areas
-# TODO: Add a setup wizard that sets up the environment and configures the application
-# TODO: Remove the OPENAI API KEY from the code and use a config file instead
-# TODO: Semantic search review/maintenance interface
-# TODO: Document Management interface
-#  1. Add new documents
-#  2. Remove documents
-#  3. Backing up of data - Directory, primary/secondary backup versions
-#  4. Restore previous state from backup
-#  3. Progress bar for document upload, parsing/embedding, indexing
-#  4. Control over number of neighbors returned and included in the prompt
-#  5. Control over the prompt composition/characteristics/technique
-#  6. Startup/Shutdown Chat
-
-# TODO: Configuration
-#   1. Model parameters: Model, temperature, top_p, n, stream, max_tokens, presence_penalty, frequency_penalty
-#   2. Allow the admin user to choose the level of error checking
-#   3. n_list, nprobe parameters for Faiss
-
-# TODO: Chatbot Interface Features
-#  1. Text entry box
-#  2. Send button
-#  3. Chat history window
-#  4. Scroll the chat history window
-#  1. Start new chat session - Drops chat history
-
-# TODO: Features of Chatbot:
-#  1. Control over chat session Start/Restart; End/Delete
-#  2. History of Chat sessions
-#  3. Responsive to the user's mood/emotional state
-#  4. Ability to save/export the chat session to file and maybe email
-#  5. Personalization of the chatbot based on the user's name, role, conference, etc.
-#  6. Memory of previous conversations with User
-#  7. Access to previous chat sessions
-#  8. Chat session introduction
-#       - Alert User that they are talking to an AI chatbot
-#       - Alert User that the chatbot is trained on the User Manual
-#       - Tell user how to reach a human
-#  9. Alert User when the chatbot is not confident about the answer
-#  10. Access to other means of communicating with humans for support
-#  11. Ability to ask the User to provide feedback on individual answers
-#  12. Ability to ask the User to provide feedback on the chatbot session as a whole
-#  10. Scrolling chat window
-#  18. Jump to the top/bottom of the chat window
-#  11. Complex user input: Multiple sentences, paragraphs, carriage returns etc.
-#  12. Paste into the chat session
-#  11. Copy out of the chat window with visual indication of selected text
-#  12. Visual differentiation of chatbot responses from User input
-#  15. Give the user control over the size of the text in the chat window
-#  16. Streaming chat w typing indicator
-#  17. Answers should provide reference to the User Manual section/page number
-#  18. View current Chat AI Context (the chat history provided as part of the prompt to the AI)
-
+# Logging setup
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 np.set_printoptions(threshold=sys.maxsize, linewidth=sys.maxsize, edgeitems=sys.maxsize)
 

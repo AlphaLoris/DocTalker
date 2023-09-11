@@ -24,6 +24,8 @@ Notes:
     - The generate_embedding function generates and assigns embeddings for keyword, node, or sentence objects.
 """
 
+# embeddings.py
+
 import os
 import re
 import json
@@ -33,6 +35,12 @@ import openai
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 from typing import List, Dict, Union
 from node import DocumentNode, Sentence
+from utils.log_config import setup_colored_logging
+import logging
+
+# Setup Logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 # Set your OpenAI API key
@@ -40,9 +48,9 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 if openai.api_key:
     # Use the API key in your script
-    print("API key found.")
+    logger.info("API key found.")
 else:
-    print("API key not found.")
+    logger.warning("API key not found.")
 
 
 class KeyWord:
@@ -204,17 +212,17 @@ def generate_embedding(obj: Union[KeyWord, DocumentNode, Sentence]) -> None:
     if hasattr(obj, "body_text"):
         # Object is a Node
         text = obj.headings + ": " + obj.body_text
-        print("Embedding node text: ", obj.body_text)
+        logger.info("Embedding node text: ", obj.body_text)
     elif hasattr(obj, "text"):
         # Object is a Sentence
         text = obj.text
-        print("Embedding sentence text: ", obj.text)
+        logger.info("Embedding sentence text: ", obj.text)
     elif hasattr(obj, "word"):
         # Object is a Keyword
-        print("Embedding keyword text: ", obj.word)
+        logger.info("Embedding keyword text: ", obj.word)
         text = obj.word
     else:
-        print("Object causing error: ", obj.id)
+        logger.info("Object causing error: ", obj.id)
         raise ValueError(f"Unsupported object type: {type(obj).__name__}")
 
     # Check if the text is empty or contains only whitespace
@@ -222,10 +230,10 @@ def generate_embedding(obj: Union[KeyWord, DocumentNode, Sentence]) -> None:
         return
 
     # Generate the embedding and get the response
-    print("Generating embedding for: ", obj.id)
-    print("Text: ", text)
+    logger.debug(f"Generating embedding for: {obj.id}")
+    logger.debug(f"Text: {text}")
     response = get_embedding(text)
-    print("Response received for: ", obj.id)
+    logger.debug(f"Response received for: {obj.id}")
 
     # Extract values from the response JSON
     try:
@@ -233,11 +241,12 @@ def generate_embedding(obj: Union[KeyWord, DocumentNode, Sentence]) -> None:
         model = response["model"]
         total_tokens = response["usage"]["total_tokens"]
     except KeyError as e:
+        logger.error(f"Failed to parse response: missing key {e}")
         raise RuntimeError(f"Failed to parse response: missing key {e}")
 
     # Assign the values to the relevant attributes
-    print("Assigning embedding value to: ", obj.id)
+    logger.debug(f"Assigning embedding value to: {obj.id}")
     obj.embedding = np.array(embedding).reshape(1, -1)
     obj.embedding_model = model
     obj.token_usage = total_tokens
-    print("Embedding value assigned to: ", obj.id)
+    logger.debug("Embedding value assigned to: ", obj.id)

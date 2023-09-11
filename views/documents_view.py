@@ -1,11 +1,18 @@
 import tkinter as tk
 from tkinter import filedialog
+from utils.log_config import setup_colored_logging
+import logging
+
+# Setup colored logging and initialize logger
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 class DocumentsView(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
+        logger.debug("Initializing DocumentsView.")
         self.h_scroll = None
         self.v_scroll = None
         self.controller = None
@@ -72,17 +79,24 @@ class DocumentsView(tk.Frame):
 
     def set_controller(self, documents_controller):
         self.controller = documents_controller
+        logger.debug("Controller set for DocumentsView.")
 
     def select_source_dir(self):
         """Open file dialog to select source directory"""
         source_dir = filedialog.askdirectory()
+        if not source_dir:
+            logger.warning("No source directory selected.")
+            return
         self.source_dir.set(source_dir)
-        print("Selected source directory:", source_dir)
+        logger.info(f"Selected source directory: {source_dir}")
 
     def load_files(self):
         """Load files from source directory"""
         source_dir = self.source_dir.get()
-        print("Loading files from source directory:", source_dir)
+        if not source_dir:
+            logger.warning("Attempted to load files without selecting a source directory.")
+            return
+        logger.info(f"Loading files from source directory: {source_dir}")
         loaded_files = self.controller.load_files(source_dir)  # Assuming this returns a list of loaded files
         self.controller.add_files(loaded_files)
         self.populate_listbox(loaded_files)
@@ -90,8 +104,12 @@ class DocumentsView(tk.Frame):
     def remove_selected_files(self):
         """Remove selected files from the index"""
         selected_indices = self.documents_listbox.curselection()
+        if not selected_indices:
+            logger.warning("Attempted to remove files, but no files were selected.")
+            return
         if selected_indices:
             selected_files = [self.documents_listbox.get(i) for i in selected_indices]
+            logger.info(f"Removing selected files: {selected_files}")
             self.controller.remove_files_from_index(selected_files)
 
             # Remove items from the listbox in reverse order to ensure indices don't change
@@ -101,6 +119,7 @@ class DocumentsView(tk.Frame):
     def populate_listbox(self, filenames):
         for file in filenames:
             self.documents_listbox.insert(tk.END, file)
+        logger.debug(f"Populated listbox with {len(filenames)} files.")
 
     def get_selected_files(self):
         return [self.documents_listbox.get(i) for i in self.documents_listbox.curselection()]

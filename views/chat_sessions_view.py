@@ -1,6 +1,12 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import pandas as pd
+from utils.log_config import setup_colored_logging
+import logging
+
+# Set up colored logging and initialize logger
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 # TODO: track cost of each chat session
 # TODO: allow the admin to set a budget for each chat session
@@ -22,6 +28,7 @@ class LaunchWindow(tk.Toplevel):
 
         self.title("Chat Session Info")
         self.geometry("250x300")
+        logger.debug("Initialized LaunchWindow.")
 
         # User email
         self.email_label = tk.Label(self, text="Email Address:")
@@ -58,6 +65,7 @@ class ChatSessionsView(tk.Frame):
             'Start date', 'Start time', 'Duration', 'Current sentiment',
             'Cost', 'Number of user queries', 'Number of prompts', 'Keywords/Topics'
         ])
+        logger.debug("DataFrame initialized for ChatSessionsView.")
 
         for col in range(11):
             self.columnconfigure(col, weight=1)
@@ -66,7 +74,7 @@ class ChatSessionsView(tk.Frame):
         for row in range(11):
             self.rowconfigure(row, weight=1)
 
-        print("Initializing ChatSessionsView")
+        logger.info("Initializing ChatSessionsView")
         # Add a simple label to the Chat Sessions Tab
         self.label = tk.Label(self, text="Chat Sessions", bg="white")
         self.label.grid(row=0, column=5, rowspan=1, columnspan=2, padx=10, pady=10)
@@ -122,6 +130,7 @@ class ChatSessionsView(tk.Frame):
         # Now that the controller is set, configure the launch chat session button command
         self.configure_launch_chat_session_button_command()
         self.configure_end_chat_session_button_command()
+        logger.debug("Controller set for ChatSessionsView.")
 
     def configure_launch_chat_session_button_command(self):
         # Set the command attribute of the launch_chat_session_button
@@ -165,12 +174,11 @@ class ChatSessionsView(tk.Frame):
                 'Keywords/Topics': chat_session_model.keywords
             }])
             self.df = pd.concat([self.df, new_row], ignore_index=True)
+            logger.debug(f"Updated sessions for chat session ID: {chat_session_model.chat_session_id}")
 
         # Refresh the Treeview
         for row in self.tree.get_children():
             self.tree.delete(row)
         for _, row in self.df.iterrows():
             self.tree.insert("", tk.END, values=list(row))
-
-
-
+        logger.info("Treeview refreshed.")

@@ -4,7 +4,12 @@ from tkinter import filedialog
 import tkinter.messagebox as messagebox
 import openai
 from typing import Tuple, Dict, Union, List
+import logging
+from utils.log_config import setup_colored_logging
 
+# Setup Logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 class LanguageModel:
 
@@ -18,9 +23,7 @@ class LanguageModel:
         self.max_tokens = None
         self.presence_penalty = None
         self.frequency_penalty = None
-        # self.prompts = []
-        # self.edit_log = None
-        # self.submission_log = None
+        logger.debug("LanguageModel initialized.")
 
     def set_model_name(self, model_name):
         self.selected_model = model_name
@@ -34,9 +37,9 @@ class LanguageModel:
         self.max_tokens = param_values.get('max_tokens')
         self.presence_penalty = param_values.get('presence_penalty')
         self.frequency_penalty = param_values.get('frequency_penalty')
-        print("Model parameters set to: ", "temp: ", self.temperature, "   top_p: ", self.top_p, "   max_tokens: ",
-              self.max_tokens, "   presence_penalty: ", self.presence_penalty, "   frequency_penalty: ",
-              self.frequency_penalty)
+        logger.debug(f"Model parameters set to: temp: {self.temperature}, top_p: {self.top_p}, "
+                     f"max_tokens: {self.max_tokens}, presence_penalty: {self.presence_penalty}, "
+                     f"frequency_penalty: {self.frequency_penalty}")
 
 
 # View
@@ -257,6 +260,7 @@ class MainWindow(tk.Tk):
             entry.config(bg="white")
 
         messagebox.showinfo("Success", "Parameters saved successfully")
+        logger.info("Parameters saved successfully.")
 
     def get_parameters(self) -> Tuple[Dict[str, Union[float, int, None]], List[str]]:
         parameters: Dict[str, Union[float, int, None]] = {}
@@ -327,6 +331,7 @@ class MainWindow(tk.Tk):
                 self.file_directory_entry.config(state=tk.NORMAL)
                 self.file_directory_save_button.config(text="Browse")
                 self.editing_directory = False
+        logger.debug(f"Setting directory in the Model to {directory}")
 
     def save_api_key(self):
         if not self.editing_api_key:
@@ -340,6 +345,7 @@ class MainWindow(tk.Tk):
             self.api_key_entry.config(state=tk.NORMAL)
             self.api_key_save_button.config(text="Save")
             self.editing_api_key = False
+        logger.debug(f"Setting API key to {api_key}")
 
 
 class LLMController:
@@ -367,6 +373,7 @@ class LLMController:
 
     # Set API Key
     def set_api_key(self, api_key):
+        logger.debug(f"Setting API key in the Model to {api_key}")
         if self.api_key is None:
             if self.validate_api_key(api_key):
                 self.model.api_key = api_key
@@ -388,6 +395,7 @@ class LLMController:
         # Key is invalid, return False.
         openai.api_key = api_key
         error_messages = []
+        logger.debug(f"Checking if API Key {api_key} is valid.")
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
@@ -395,8 +403,7 @@ class LLMController:
                 temperature=0.9, top_p=1, n=1, stream=False, max_tokens=5, presence_penalty=0, frequency_penalty=0,
                 logit_bias={}, user=""
             )
-            print("API Key is valid. Model Response:")
-            print(response['choices'][0]['message']['content'])
+            logger.info("API Key is valid. Model Response: " + response['choices'][0]['message']['content'])
         except openai.OpenAIError as e:
             print(f"Error: {e}")
             error_messages.append(str(e))
@@ -416,6 +423,7 @@ class LLMController:
     # Validate parameters. If the parameters are valid, set them in the model
     def set_parameters(self, parameters):
         # Sets the parameters in the model if they are valid. Returns True if the parameters are valid, False otherwise.
+        logger.debug(f"Setting parameters: {parameters}")
         errors = []
 
         for key, value in parameters.items():
@@ -433,8 +441,10 @@ class LLMController:
 
 # Main function
 def main():
+    logger.info("Starting the LLMController application.")
     controller = LLMController()
     controller.view.mainloop()
+    logger.info("LLMController application terminated.")
 
 
 if __name__ == "__main__":

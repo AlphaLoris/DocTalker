@@ -28,6 +28,8 @@ Notes:
     - The extract_page_numbers method extracts page numbers from page breaks.
 """
 
+# docx_document_parser.py
+
 import zipfile
 from lxml import etree
 from lxml.etree import ElementBase
@@ -35,6 +37,12 @@ from docx import Document
 from node import DocumentNode, NodeFactory
 from typing import Dict, List, Tuple
 import re
+import logging
+from utils.log_config import setup_colored_logging
+
+# Setup Logging
+setup_colored_logging()
+logger = logging.getLogger(__name__)
 
 
 class DocxDocumentParser:
@@ -57,6 +65,7 @@ class DocxDocumentParser:
         self.nsmap = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
         self.text_contents = None
         self.document_nodes = None
+        logger.debug(f"Initializing DocxDocumentParser for file: {self.file_path}")
 
         # Extract text elements from the document
         with zipfile.ZipFile(self.file_path, 'r') as docx_zip:
@@ -77,8 +86,14 @@ class DocxDocumentParser:
         self.condense_blank_lines()
         self.text_contents = self.extract_text_elements()
 
-        # Print the text contents to console
-        print("Document text:\n" + str(self.text_contents))
+        logger.info(f"Processing document at path: {self.file_path}")
+
+        # Print the entire text content of the document to console
+        # logger.info("Document text:\n" + str(self.text_contents))
+
+        # Print the first 25 words of the document to console
+        logger.info("Document text: " + ' '.join(str(self.text_contents).split()[:25]) + (
+            "..." if len(str(self.text_contents).split()) > 25 else ""))
 
         # Create a dictionary of nodes based on the text contents of the document
         self.document_nodes = {}
@@ -119,7 +134,7 @@ class DocxDocumentParser:
         doc = Document(doc_file_path)
         core_properties = doc.core_properties
 
-        print("Getting document title from metadata...")
+        logger.debug(f"Fetching title from metadata of document at path: {doc_file_path}")
         if core_properties.title:
             return core_properties.title
 
@@ -135,6 +150,7 @@ class DocxDocumentParser:
         :return: The root element of the XML tree representing the document.
         :rtype: etree._Element
         """
+        logger.debug("Parsing the document to extract XML root element.")
         self.doc_root = etree.fromstring(self.document_xml_bytes)
         self.xml_tree = self.doc_root
         return self.doc_root
@@ -143,6 +159,7 @@ class DocxDocumentParser:
         """
         Removes the Table of Contents (TOC) and its header if it exists from the document.
         """
+        logger.debug("Attempting to remove Table of Contents (TOC) from document.")
         xpath_toc = "//w:sdt/w:sdtPr/w:docPartObj/w:docPartGallery[@w:val='Table of Contents']"
 
         # Find the TOC element
@@ -159,7 +176,7 @@ class DocxDocumentParser:
                 header_element = prev_element
 
             # Remove the TOC
-            print("Removing TOC")
+            logger.info("Removing TOC")
             toc_sdt.getparent().remove(toc_sdt)
 
             # Remove the header element, if it exists
@@ -175,6 +192,7 @@ class DocxDocumentParser:
         remove_elements = []
         last_was_blank = False
 
+        logger.debug("Condensing consecutive blank lines in the document.")
         for p in paragraphs:
             is_blank = not p.text and not any(elem.text for elem in p.iter())
             spacing = p.find(".//w:spacing", namespaces)
@@ -197,6 +215,7 @@ class DocxDocumentParser:
         :return: A list of tuples, where each tuple represents a text element and its properties.
         :rtype: List[Tuple[str, str, List[str], List[int]]]
         """
+        logger.debug("Extracting text elements from the document.")
         paragraphs = self.doc_root.findall('.//w:p', self.doc_root.nsmap)
         doc_text_contents = []
         doc_current_headings = []
@@ -246,6 +265,7 @@ class DocxDocumentParser:
         :return: A list of page numbers extracted from the paragraph.
         :rtype: List[int]
         """
+        logger.debug("Extracting page numbers from a paragraph in the document.")
         page_breaks = paragraph.findall(".//w:br[@w:type='page']", namespaces=self.nsmap)
         page_numbers = []
 
