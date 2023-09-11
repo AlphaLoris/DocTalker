@@ -54,13 +54,14 @@ class ChatSessionModel:
     def get_start_date(self):
         # Extract and return only the date part in string format
         self.start_date = self.start_datetime.strftime("%Y-%m-%d")
-        logger.info(f"Setting start_date as: ", self.start_date)
+        logger.info(f"Setting start_date as: {self.start_date}")
+
         return self.start_date
 
     def get_start_time(self):
         # Extract and return only the time part in string format
         self.start_time = self.start_datetime.strftime("%H:%M:%S")
-        logger.info(f"Setting start_time as: ", self.start_time)
+        logger.info(f"Setting start_time as: {self.start_time}")
         return self.start_time
 
     def calculate_duration(self):
